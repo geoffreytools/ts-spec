@@ -20,5 +20,13 @@
   "homepage": "https://github.com/geoffreytools/ts-test#readme",
   "dependencies": {
     "free-types-core": "github:geoffreytools/free-types-core"
+  },
+  "devDependencies": {
+    "typescript": "^4.7.4"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "trace": "tsc --generateTrace traceDir"
   }
 }
