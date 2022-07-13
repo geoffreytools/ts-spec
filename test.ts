@@ -1,5 +1,5 @@
 import { test, _never } from './'
-import { Type } from 'free-types-core';
+import { Type } from 'free-types-core/Type';
 
 // disambiguation
 
@@ -30,7 +30,7 @@ test('disambiguate built-in class' as const, t => [
 
 class Test<T> { constructor(private value: T) {} }
 interface $Test extends Type<1> { type: Test<this[0]> }
-declare module './' { interface TestMap { Test: $Test } }
+declare module './' { interface TypesMap { Test: $Test } }
 
 test('disambiguate known user class' as const, t => [
     t.not.equal<Test<number>, Test<any>>(),

@@ -330,9 +330,7 @@ test('use `_never` to extend `never`' as const, t => [
 ```
 
 ### User classes
-Disambiguation works out of the box for most built-in types and for nestings of arbitrary depths.
-
-However, user classes need to be registered for them to be disambiguated:
+Disambiguation works out of the box for arbitrarily nested built-in types. However, user classes need to be registered for them to be disambiguated:
 ```typescript
 import { test } from 'ts-test'
 import { Type, A } from 'free-types'
@@ -345,9 +343,9 @@ class Foo<T extends number> {
 // A free type constructor for that class
 interface $Foo extends Type<[number]> { type: Foo<A<this>> }
 
-// which we register into ts-test.TestMap
+// which we register into ts-test.TypesMap
 declare module 'ts-test' {
-    interface TestMap { Foo: $Foo }
+    interface TypesMap { Foo: $Foo }
 }
 
 // Now we are safe
@@ -356,4 +354,7 @@ test('Registered user classes are disambiguated' as const, t =>
 //  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ FailingTest
 )
 ```
+
+> The `TypesMap` repository is shared with the `free-types` library, which means `declare module 'free-types'` would also work.
+
 See the [free-types](https://github.com/geoffreytools/free-types-private) documentation for more information about free type constructors.

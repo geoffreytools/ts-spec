@@ -1,8 +1,8 @@
-import { apply, TypesMap, Unwrapped, unwrap } from 'free-types-core';
+import { apply} from 'free-types-core/apply';
+import { Unwrapped, unwrap } from 'free-types-core/unwrap';
+import { TypesMap } from 'free-types-core/TypesMap';
 
-export { test, debug, _, Context, _never, _any, _unknown, TestMap }
-
-interface TestMap extends TypesMap {}
+export { test, debug, _, Context, _never, _any, _unknown, TypesMap }
 
 declare const _: unknown;
 
@@ -134,7 +134,7 @@ type DisambiguateArray<T> = T extends (infer R)[] ? Disambiguate<R>[] : T
 
 type DisambiguateOther<
     T,
-    U extends Unwrapped = unwrap<T, TestMap>,
+    U extends Unwrapped = unwrap<T, TypesMap>,
 > = [U] extends [never] ? T
     : apply<U['type'], Disambiguate<U['args']> & unknown[]>;
 
