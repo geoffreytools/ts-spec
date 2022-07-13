@@ -18,6 +18,7 @@ test('any, never and unknown are distinct types' as const, t => [
 test('disambiguate built-in basic types' as const, t => [
     t.not.equal<number[], any[]>(),
     t.not.equal<[number], [any]>(),
+    t.not.equal<[number, ...number[]], [number, ...any[]]>(),
     t.not.equal<{ foo: number }, { foo: any }>(),
     t.not.equal<{ foo: number }[], { foo: any }[]>(),
     t.not.equal<[{ foo: number }], [{ foo: any }]>(),
