@@ -1,3 +1,4 @@
+import { ArrayKeys, Eq, Extends, IsAny as Any, IsUnknown as Unknown } from 'free-types-core/utils';
 import { apply} from 'free-types-core/apply';
 import { Unwrapped, unwrap } from 'free-types-core/unwrap';
 import { TypesMap } from 'free-types-core/TypesMap';
@@ -92,17 +93,13 @@ declare const result: unique symbol;
 type Failure<T, A, B> = Fork<Any<T>, Debug<A, B>, FailingTest<T, A, B>>
 type FailingTest<T, A, B> = { title: T, a: A, b: B, [result]: 'fail' }
 type Debug<A, B> = { a: A, b: B, [result]: 'fail' };
-type Eq<A, B> = And<Extends<A, B>, Extends<B, A>>;
-type Extends<A, B> = [A] extends [B] ? true : false;
 type Valid<T> = Not<Or<AnyOrUnknown<T>, Never<T>>>;
 type AnyOrUnknown<T> = Eq<T, unknown>;
-type Unknown<T> = And<AnyOrUnknown<T>, Not<Any<T>>>;
+
 type Never<T> = Extends<T, never>;
 type True<T> = And<Valid<T>, Extends<T, true>>;
 type False<T> = And<Valid<T>, Extends<T, false>>;
-type Any<T> = Extends<T | anything, T & anything>
-    declare const thing: unique symbol;
-    type anything = typeof thing;
+
 type Either<A, B> = A extends false ? B : A;
 type And<A, B> = Fork<A, Fork<B, B, false>, false>;
 type Or<A, B> = Fork<A, A, Fork<B, B, false>>;
@@ -122,21 +119,24 @@ type Disambiguate<T> =
     : Never<T> extends true ? _never
     : {} extends T ? {}
     : Unknown<T> extends true ? _unknown
-    : T extends unknown[] | { [k: string | number | symbol]: unknown }
-        ? Eq<number, T['length']> extends true
-        ? DisambiguateArray<T> : {
-            [K in keyof T]: K extends keyof [] ? T[K] : Disambiguate<T[K]>
-        }
+    : T extends unknown[]
+    ? T extends [] | [unknown, ...unknown[]]
+        ? DisambiguateTuple<T>
+        : Disambiguate<T[0]>[]
+    : T extends { [k: string | number | symbol]: unknown }
+    ? { [K in keyof T]: Disambiguate<T[K]> }
     : T extends number | string | boolean | bigint ? DisambiguateBranded<T>
     : DisambiguateOther<T>
 
-type DisambiguateArray<T> = T extends (infer R)[] ? Disambiguate<R>[] : T
+type DisambiguateTuple<T> = {
+    [K in keyof T]: K extends ArrayKeys ? T[K] : Disambiguate<T[K]>
+};
 
 type DisambiguateOther<
     T,
     U extends Unwrapped = unwrap<T, TypesMap>,
 > = [U] extends [never] ? T
-    : apply<U['type'], Disambiguate<U['args']> & unknown[]>;
+    : apply<U['type'], DisambiguateTuple<U['args']>>;
 
 type DisambiguateBranded<T, Tag = GetTag<T, Widen<T>>> = 
     Tag extends object ? GetRadical<T, Tag> & Disambiguate<Tag> : Tag
