@@ -1,4 +1,4 @@
-# ts-test
+# ts-spec
 
 A small library for testing your types.
 
@@ -9,13 +9,13 @@ Features:
 
 ## How to install
 ```
-npm install --save-dev https://github.com/geoffreytools/ts-test
+npm install --save-dev ts-spec
 ```
 
 ## How to use
 Write your tests:
 ```typescript
-import { test } from 'ts-test';
+import { test } from 'ts-spec';
 
 test('test description' as const, t => 
     t.equal ([1, 2, 3]) <string[]>()
@@ -209,7 +209,7 @@ and whether you prefer the placeholder or the curried syntax:
 <img width="1" height="1">
 
 ```typescript
-import { _ } from 'ts-test'
+import { _ } from 'ts-spec'
 ```
 </th>
 <th align="center">curried syntax</th>
@@ -268,7 +268,7 @@ test('Bar and Baz are Foo' as const, t => {
 If you want to share a custom assertion across tests, you must bring `Context` into scope and connect it like so:
 
 ```typescript
-import { Context } from 'ts-test';
+import { Context } from 'ts-spec';
 
 const isFoo = <D>(t: Context<D>) => t.equal<Foo>();
 ```
@@ -322,7 +322,7 @@ You can refer to the [assertions table](#assertions) for a synthetic view of the
 If you want the type under test to include `any`, `never` or `unknown` in an asymmetric assertion, you can import the placeholders `_any`, `_never` and `_unknown`:
 
 ```typescript
-import { _never } from 'ts-test'
+import { _never } from 'ts-spec'
 
 test('use `_never` to extend `never`' as const, t => [
     t.extends<[1, 2, never], [number, number, _never]>(),
@@ -332,7 +332,7 @@ test('use `_never` to extend `never`' as const, t => [
 ### User classes
 Disambiguation works out of the box for arbitrarily nested built-in types. However, user classes need to be registered for them to be disambiguated:
 ```typescript
-import { test } from 'ts-test'
+import { test } from 'ts-spec'
 import { Type, A } from 'free-types'
 
 // The class we want to test
@@ -343,8 +343,8 @@ class Foo<T extends number> {
 // A free type constructor for that class
 interface $Foo extends Type<[number]> { type: Foo<A<this>> }
 
-// which we register into ts-test.TypesMap
-declare module 'ts-test' {
+// which we register into ts-spec.TypesMap
+declare module 'ts-spec' {
     interface TypesMap { Foo: $Foo }
 }
 
@@ -357,4 +357,4 @@ test('Registered user classes are disambiguated' as const, t =>
 
 > The `TypesMap` repository is shared with the `free-types` library, which means `declare module 'free-types'` would also work.
 
-See the [free-types](https://github.com/geoffreytools/free-types-private) documentation for more information about free type constructors.
+See the [free-types](https://github.com/geoffreytools/free-types) documentation for more information about free type constructors.

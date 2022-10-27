@@ -1,11 +1,11 @@
 {
-  "name": "ts-test",
+  "name": "ts-spec",
   "version": "1.0.1",
   "description": "A small library for testing your types",
   "main": "index.ts",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/geoffreytools/ts-test.git"
+    "url": "git+https://github.com/geoffreytools/ts-spec.git"
   },
   "keywords": [
     "typescript",
@@ -14,12 +14,15 @@
   ],
   "author": "Geoffrey Gourdet",
   "license": "ISC",
+  "files": [
+    "index.ts"
+  ],
   "bugs": {
-    "url": "https://github.com/geoffreytools/ts-test/issues"
+    "url": "https://github.com/geoffreytools/ts-spec/issues"
   },
-  "homepage": "https://github.com/geoffreytools/ts-test#readme",
+  "homepage": "https://github.com/geoffreytools/ts-spec#readme",
   "dependencies": {
-    "free-types-core": "github:geoffreytools/free-types-core"
+    "free-types-core": "^0.2.0"
   },
   "devDependencies": {
     "typescript": "^4.7.4"
