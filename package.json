@@ -1,11 +1,11 @@
 {
   "name": "ts-spec",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "A small library for testing your types",
   "main": "dist/index.js",
   "type": "module",
   "repository": {
-    "type": "git",  
+    "type": "git",
     "url": "git+https://github.com/geoffreytools/ts-spec.git"
   },
   "keywords": [
