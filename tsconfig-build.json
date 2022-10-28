@@ -1,0 +1,10 @@
+{
+    "extends": "./tsconfig-base.json",
+    "compilerOptions": {
+        "noEmit": false,
+        "declaration": true,
+        "outDir": "./dist",
+        "declarationDir": "./dist"
+    },
+    "files": ["./src/index.ts"]
+}

@@ -3,14 +3,16 @@ import { apply} from 'free-types-core/apply';
 import { Unwrapped, unwrap } from 'free-types-core/unwrap';
 import { TypesMap } from 'free-types-core/TypesMap';
 
-export { test, debug, _, Context, _never, _any, _unknown, TypesMap }
+export { test, debug, _ }
 
-declare const _: unknown;
+const test = <T extends CheckT, C = Context<T>, CheckT = Title<T>>
+    (title: T, callback: (t: C) => PassingTest | PassingTest[]) => {}
 
-declare const test: <T extends CheckT, C = Context<T>, CheckT = Title<T>>
-    (title: T, callback: (t: C) => PassingTest | PassingTest[]) => void
+const debug = (callback: (t: Context<any>) => PassingTest | PassingTest[]) => {}
 
-declare const debug: (callback: (t: Context<any>) => PassingTest | PassingTest[]) => void
+const _ = null as unknown;
+
+export type { Context, _never, _any, _unknown, TypesMap }
 
 type Title<T> = Fork<Extends<T, string>, ConstString<T>, string>;
 type ConstString<T> = Fork<Eq<T, string>, { [missing]: 'as const' }, T>;
