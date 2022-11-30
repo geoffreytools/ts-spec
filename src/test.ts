@@ -87,6 +87,7 @@ test('`_never` allows `never` to extend itself' as const, t => [
 
 
 // Comparing equality algorithms on edge cases
+// https://github.com/microsoft/TypeScript/issues/27024
 // t.equal fails to exclude `any` on unknown user classes
 
 type Equal1<X, Y> =
