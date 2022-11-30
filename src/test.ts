@@ -146,6 +146,19 @@ type _DeepHalfEqual6<A, B extends A, K extends keyof A> = (
     ? true
     : false;
 
+class Hidden { }
+
+type Equal7<T, S> =
+    [T] extends [S] ?
+    [S] extends [T] ?
+    [Hidden] extends [T] ?
+    [Hidden] extends [S] ? true : 
+    false :                       
+    [Hidden] extends [S] ? false :
+    true :                        
+    false :                       
+    false                         
+
 type A1 = { x: 1 } & { y: 2 }
 type A2 = { y: 2 } & { x: 1 }
 type A3 = { x: 1, y: 2 }
@@ -184,6 +197,8 @@ test('Intersection' as const, t => [
     t.true<Equal5<A1, A3>>(),
     // Equal6
     t.true<Equal6<A1, A3>>(),
+    // Equal7
+    t.true<Equal7<A1, A3>>(),
 ])
 
 test('Union' as const, t => [
@@ -201,6 +216,8 @@ test('Union' as const, t => [
     t.true<Equal5<A1 | A2, A2>>(),
     // Equal6
     t.true<Equal6<A1 | A2, A2>>(),
+    // Equal7
+    t.true<Equal7<A1 | A2, A2>>(),
 ])
 
 test('Union + intersection' as const, t => [
@@ -218,6 +235,8 @@ test('Union + intersection' as const, t => [
     t.true<Equal5<B1, B2>>(),
     // @ts-expect-error: Equal6
     t.true<Equal6<B1, B2>>(),
+    // Equal7
+    t.true<Equal7<B1, B2>>(),
 ])
 
 test('exclude `any` fliped pairs' as const, t => [
@@ -235,6 +254,8 @@ test('exclude `any` fliped pairs' as const, t => [
     t.false<Equal5<C1, C2>>(),
     // @ts-expect-error: Equal6 (type instantiation problem)
     t.false<Equal6<C1, C2>>(),
+    // @ts-expect-error: Equal7
+    t.false<Equal7<C1, C2>>(),
 ])
 
 test('exclude `any` single key obj' as const, t => [
@@ -252,6 +273,8 @@ test('exclude `any` single key obj' as const, t => [
     t.false<Equal5<D1, D2>>(),
     // Equal6
     t.false<Equal6<D1, D2>>(),
+    // @ts-expect-error: Equal7
+    t.false<Equal7<D1, D2>>(),
 ])
 
 test('exclude `any` unknown user class' as const, t => [
@@ -269,6 +292,8 @@ test('exclude `any` unknown user class' as const, t => [
     t.false<Equal5<E1, E2>>(),
     // @ts-expect-error: Equal6
     t.false<Equal6<E1, E2>>(),
+    // @ts-expect-error: Equal7
+    t.false<Equal7<E1, E2>>(),
 ])
 
 test('branded types' as const, t => [
@@ -286,4 +311,6 @@ test('branded types' as const, t => [
     t.false<Equal5<F1, F2>>(),
     // Equal6
     t.false<Equal6<F1, F2>>(),
+    // @ts-expect-error: Equal7
+    t.false<Equal7<F1, F2>>(),
 ])
