@@ -1,7 +1,8 @@
-import { ArrayKeys, Eq, Extends, IsAny as Any, IsUnknown as Unknown } from 'free-types-core/utils';
-import { apply} from 'free-types-core/apply';
-import { Unwrapped, unwrap } from 'free-types-core/unwrap';
-import { TypesMap } from 'free-types-core/TypesMap';
+import { ArrayKeys, Eq, Extends, IsAny as Any, IsUnknown as Unknown } from 'free-types-core/dist/utils';
+import { apply} from 'free-types-core/dist/apply';
+import { Unwrapped, unwrap } from 'free-types-core/dist/unwrap';
+import { TypesMap } from 'free-types-core/dist/TypesMap';
+
 
 export { test, debug, _ }
 

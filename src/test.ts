@@ -1,5 +1,5 @@
 import { test, _never } from './'
-import { Type } from 'free-types-core/Type';
+import { Type } from 'free-types-core';
 
 // disambiguation
 
