@@ -1,10 +1,39 @@
-import { ArrayKeys, Eq, Extends, IsAny as Any, IsUnknown as Unknown } from 'free-types-core/dist/utils';
+import { ArrayKeys, Eq, Extends as DoesExtend, IsAny as Any, IsUnknown as Unknown } from 'free-types-core/dist/utils';
 import { apply} from 'free-types-core/dist/apply';
 import { Unwrapped, unwrap } from 'free-types-core/dist/unwrap';
 import { TypesMap } from 'free-types-core/dist/TypesMap';
 
+// direct type-level API
 
-export { test, debug, _ }
+export type { Equal, Extends, Includes }
+
+interface OK { [result]: 'OK' }
+
+interface FailEqual<A, B> { [result]: [A, B]}
+interface FailExtend<A, B> { [result]: [A, B]}
+interface FailInclude<A, B> { [result]: [A, B]}
+
+type Equal<
+    A extends R extends true ? unknown : never,
+    B,
+    R = Eq<Disambiguate<A>, Disambiguate<B>>
+> = R extends true ? OK : FailEqual<A, B>;
+
+type Extends<
+    A extends R extends true ? unknown : never,
+    B,
+    R = Disambiguate<A> extends B ? true : false
+> = R extends true ? OK : FailExtend<A, B>;
+
+type Includes<
+    A extends R extends true ? unknown : never,
+    B,
+    R = Disambiguate<B> extends A ? true : false
+> = R extends true ? OK : FailInclude<A, B>;
+
+// fully-featured API
+
+export { test, debug, _, Context }
 
 const test = <T extends CheckT, C = Context<T>, CheckT = Title<T>>
     (title: T, callback: (t: C) => PassingTest | PassingTest[]) => {}
@@ -13,84 +42,66 @@ const debug = (callback: (t: Context<any>) => PassingTest | PassingTest[]) => {}
 
 const _ = null as unknown;
 
-export type { Context, _never, _any, _unknown, TypesMap }
-
-type Title<T> = Fork<Extends<T, string>, ConstString<T>, string>;
+type Title<T> = Fork<DoesExtend<T, string>, ConstString<T>, string>;
 type ConstString<T> = Fork<Eq<T, string>, { [missing]: 'as const' }, T>;
 declare const missing: unique symbol;
 
 type PassingTest = boolean | ((a: any) => boolean);
 
 type Context<T> = {
-    equal: Equal<T>,
-    extends: SubType<T>,
-    includes: SuperType<T>,
-    any: IsAny<T>,
-    unknown: IsUnknown<T>,
-    never: IsNever<T>,
-    true: IsTrue<T>,
-    false: IsFalse<T>
+    equal: {
+        <A>(a?: A) : <B>(b?: B) => Equality<T, A, B, true>
+        <A, B>(..._: [] | [A, B]) : Equality<T, A, B, true>
+    },
+    extends: {
+        <A>(a?: A) : <B>(b?: B) => LeftEquality<T, A, B, true>
+        <A, B>(..._: [] | [A, B]) : LeftEquality<T, A, B, true>
+    },
+    includes: {
+        <A>(a?: A) : <B>(b?: B) => RightEquality<T, A, B, true>
+        <A, B>(..._: [] | [A, B]) : RightEquality<T, A, B, true>
+    },
+    any: <A>(a?: A) => Test<T, A, any, true, Any<A>>,
+    unknown: <A>(a?: A) => Test<T, A, unknown, true, Unknown<A>>,
+    never: <A>(a?: A) => Test<T, A, never, true, Never<A>>,
+    true: <A>(a?: A) => Test<T, A, true, true, True<A>>,
+    false: <A>(a?: A) => Test<T, A, false, true, False<A>>
     not: {
-        equal: NotEqual<T>,
-        extends: NotSubType<T>,
-        includes: NotSuperType<T>,
-        any: IsNotAny<T>,
-        unknown: IsNotUnknown<T>,
-        never: IsNotNever<T>
-        true: IsNotTrue<T>,
-        false: IsNotFalse<T>
+        equal: {
+            <A>(a?: A) : <B>(b?: B) => Equality<T, A, B, false>
+            <A, B>(..._: [] | [A, B]) : Equality<T, A, B, false>
+        },
+        extends: {
+            <A>(a?: A) : <B>(b?: B) => LeftEquality<T, A, B, false>
+            <A, B>(..._: [] | [A, B]) : LeftEquality<T, A, B, false>
+        },
+        includes: {
+            <A>(a?: A) : <B>(b?: B) => RightEquality<T, A, B, false>
+            <A, B>(..._: [] | [A, B]) : RightEquality<T, A, B, false>
+        },
+        any: <A>(a?: A) => Test<T, A, any, false, Any<A>>,
+        unknown:  <A>(a?: A) => Test<T, A, unknown, false, Unknown<A>>,
+        never: <A>(a?: A) => Test<T, A, never, false, Never<A>>
+        true: <A>(a?: A) => Test<T, A, true, false, True<A>>,
+        false: <A>(a?: A) => Test<T, A, false, false, False<A>>
     }
 }
-
-type Equal<T> = {
-    <A>(a?: A) : <B>(b?: B) => Equality<T, A, B, true>
-    <A, B>(..._: [] | [A, B]) : Equality<T, A, B, true>
-}
-
-type SubType<T> = {
-    <A>(a?: A) : <B>(b?: B) => LeftEquality<T, A, B, true>
-    <A, B>(..._: [] | [A, B]) : LeftEquality<T, A, B, true>
-}
-
-type SuperType<T> = {
-    <A>(a?: A) : <B>(b?: B) => RightEquality<T, A, B, true>
-    <A, B>(..._: [] | [A, B]) : RightEquality<T, A, B, true>
-}
-type NotEqual<T> = {
-    <A>(a?: A) : <B>(b?: B) => Equality<T, A, B, false>
-    <A, B>(..._: [] | [A, B]) : Equality<T, A, B, false>
-}
-type NotSubType<T> = {
-    <A>(a?: A) : <B>(b?: B) => LeftEquality<T, A, B, false>
-    <A, B>(..._: [] | [A, B]) : LeftEquality<T, A, B, false>
-}
-type NotSuperType<T> = {
-    <A>(a?: A) : <B>(b?: B) => RightEquality<T, A, B, false>
-    <A, B>(..._: [] | [A, B]) : RightEquality<T, A, B, false>
-}
-
-type IsTrue<Title> = <A>(a?: A) => Test<Title, A, true, true, True<A>>
-type IsNotTrue<Title> = <A>(a?: A) => Test<Title, A, true, false, True<A>>
-type IsFalse<Title> = <A>(a?: A) => Test<Title, A, false, true, False<A>>
-type IsNotFalse<Title> = <A>(a?: A) => Test<Title, A, false, false, False<A>>
-type IsNever<Title> = <A>(a?: A) => Test<Title, A, never, true, Never<A>>
-type IsUnknown<Title> = <A>(a?: A) => Test<Title, A, unknown, true, Unknown<A>>
-type IsAny<Title> = <A>(a?: A) => Test<Title, A, any, true, Any<A>>
-type IsNotNever<Title> = <A>(a?: A) => Test<Title, A, never, false, Never<A>>
-type IsNotUnknown<Title> = <A>(a?: A) => Test<Title, A, unknown, false, Unknown<A>>
-type IsNotAny<Title> = <A>(a?: A) => Test<Title, A, any, false, Any<A>>
 
 type Equality<Title, A, B, T> =
     Test<Title, A, B, T, Eq<Disambiguate<A>, Disambiguate<B>>>
 
 type LeftEquality<Title, A, B, T> =
-    Test<Title, A, B, T, Extends<Disambiguate<A>, B>>
+    Test<Title, A, B, T, DoesExtend<Disambiguate<A>, B>>
 
 type RightEquality<Title, A, B, T> =
-    Test<Title, A, B, T, Extends<Disambiguate<B>, A>>
+    Test<Title, A, B, T, DoesExtend<Disambiguate<B>, A>>
 
 type Test<Title, A, B, Success, R> =
     Either<Eq<R, Success>, Failure<Title, A, B>>
+
+// Common
+
+export type { _never, _any, _unknown, TypesMap }
 
 declare const result: unique symbol;
 type Failure<T, A, B> = Fork<Any<T>, Debug<A, B>, FailingTest<T, A, B>>
@@ -99,15 +110,15 @@ type Debug<A, B> = { a: A, b: B, [result]: 'fail' };
 type Valid<T> = Not<Or<AnyOrUnknown<T>, Never<T>>>;
 type AnyOrUnknown<T> = Eq<T, unknown>;
 
-type Never<T> = Extends<T, never>;
-type True<T> = And<Valid<T>, Extends<T, true>>;
-type False<T> = And<Valid<T>, Extends<T, false>>;
+type Never<T> = DoesExtend<T, never>;
+type True<T> = And<Valid<T>, DoesExtend<T, true>>;
+type False<T> = And<Valid<T>, DoesExtend<T, false>>;
 
 type Either<A, B> = A extends false ? B : A;
 type And<A, B> = Fork<A, Fork<B, B, false>, false>;
 type Or<A, B> = Fork<A, A, Fork<B, B, false>>;
 type Fork<P, T, F> = P extends false ? F : T;
-type Not<T> = Extends<T, false>;
+type Not<T> = DoesExtend<T, false>;
 
 declare const _any: unique symbol;
 declare const _never: unique symbol;
