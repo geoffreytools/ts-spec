@@ -1,7 +1,4 @@
-import { ArrayKeys, Eq, Extends as DoesExtend, IsAny as Any, IsUnknown as Unknown } from 'free-types-core/dist/utils';
-import { apply} from 'free-types-core/dist/apply';
-import { Unwrapped, unwrap } from 'free-types-core/dist/unwrap';
-import { TypesMap } from 'free-types-core/dist/TypesMap';
+import { apply, Unwrapped, unwrap, TypesMap } from 'free-types-core';
 
 // direct type-level API
 
@@ -120,6 +117,13 @@ type Or<A, B> = Fork<A, A, Fork<B, B, false>>;
 type Fork<P, T, F> = P extends false ? F : T;
 type Not<T> = DoesExtend<T, false>;
 
+declare const thing: unique symbol;
+type anything = typeof thing;
+type DoesExtend<A, B> = [A] extends [B] ? true : false;
+type Any<T> = DoesExtend<T | anything, T & anything>
+type Eq<A, B> = [A] extends [B] ? [B] extends [A] ? true : false : false;
+type Unknown<T> = unknown extends T ? Any<T> extends false ? true : false : false;
+
 declare const _any: unique symbol;
 declare const _never: unique symbol;
 declare const _unknown: unique symbol;
@@ -143,7 +147,7 @@ type Disambiguate<T> =
     : DisambiguateOther<T>
 
 type DisambiguateTuple<T> = {
-    [K in keyof T]: K extends ArrayKeys ? T[K] : Disambiguate<T[K]>
+    [K in keyof T]: K extends keyof [] ? T[K] : Disambiguate<T[K]>
 };
 
 type DisambiguateOther<
