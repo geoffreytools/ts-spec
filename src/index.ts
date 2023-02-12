@@ -132,6 +132,7 @@ type _unknown = typeof _unknown;
 type Disambiguate<T> =
     Any<T> extends true ? _any
     : Never<T> extends true ? _never
+    : IsIntrinsic<T> extends true ? T
     : {} extends T ? {}
     : Unknown<T> extends true ? _unknown
     : T extends unknown[]
@@ -146,6 +147,20 @@ type Disambiguate<T> =
 type DisambiguateTuple<T> = {
     [K in keyof T]: K extends keyof [] ? T[K] : Disambiguate<T[K]>
 };
+
+type Intrinsic =
+    | Uppercase<string>
+    | Lowercase<string>
+    | Capitalize<string>
+    | Uncapitalize<string>
+
+type IsIntrinsic<T> = boolean extends (
+    Intrinsic extends infer I ?
+        I extends T ?
+            T extends I ? true : false
+        : false
+    : false
+) ? true : false; 
 
 type DisambiguateOther<
     T,
