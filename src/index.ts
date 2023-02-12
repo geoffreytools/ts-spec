@@ -46,7 +46,7 @@ declare const missing: unique symbol;
 type PassingTest = boolean | ((a: any) => boolean);
 
 type BinaryTest<T extends string, $F extends $BinaryAssertion> = {
-    <A>(a?: A): <B>(b?: B) => apply<$F, [T, A, B]>
+    <A>(...a: [A] | []): <B>(...b: [B] | []) => apply<$F, [T, A, B]>
     <A, B>(..._: [] | [A, B]): apply<$F, [T, A, B]>
 }
 
