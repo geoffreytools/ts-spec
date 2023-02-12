@@ -17,7 +17,7 @@ Write your tests:
 ```typescript
 import { test } from 'ts-spec';
 
-test('test description' as const, t => 
+test('test description', t => 
     t.equal ([1, 2, 3]) <string[]>()
 );
 ```
@@ -74,25 +74,12 @@ The function `debug` has the same functionality as `test` but doesn't accept a t
 
 The function `test` is composed of a test description and a callback.
 
-The test description must use a [const assertion](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-4.html#const-assertions).
-
-```typescript
-test('test description' as const, ...);
-//                      --------
-```
-
- You will see the following error if you forget it:
-
-```
-Argument of type 'string' is not assignable to parameter of type '{ [missing]: "as const"; }
-```
-
 The callback can return an assertion, an assertion returning function, or an array of either of them.
 
 #### Single assertion
 
 ```ts
-test('foo is Foo' as const, t =>
+test('foo is Foo', t =>
     t.equal (foo) <Foo>()
 );
 ```
@@ -100,14 +87,14 @@ test('foo is Foo' as const, t =>
 #### Array of assertions
 The recommended way to do it is the following:
 ```typescript
-test('`factory` returns the right instance' as const, t => [
+test('`factory` returns the right instance', t => [
     t.equal (factory('foo')) <Foo>(),
     t.equal (factory('bar')) <Bar>()
 ]);
 ```
 The following, although equivalent, prints noisier error messages
 ```typescript
-test('`factory` returns the right instance' as const, t => {
+test('`factory` returns the right instance', t => {
     return [
         t.equal (factory('foo')) <Foo>(),
         t.equal (factory('bar')) <Bar>()
@@ -118,13 +105,13 @@ test('`factory` returns the right instance' as const, t => {
 #### Assertion returning function
 This pattern can be useful for testing type narrowing with only little boilerplate
 ```typescript
-test('`includedIn` narrows down its input' as const, t =>
+test('`includedIn` narrows down its input', t =>
     input => includedIn(input, [1, 2, 3]) && t.equal(input, <number>_)
 );
 ```
 or for scoping test variables
 ```typescript
-test('`factory` returns the right instance' as const, t => [
+test('`factory` returns the right instance', t => [
     () => {
         const foo = factory('foo');
         return t.equal (foo) <Foo>()
@@ -256,7 +243,7 @@ t.equal <A>() <B>()
 You can leverage currying to create your own assertions:
 
 ```typescript
-test('Bar and Baz are Foo' as const, t => {
+test('Bar and Baz are Foo', t => {
     const isFoo = t.equal<Foo>();
     return [
         isFoo<Bar>(),
@@ -274,7 +261,7 @@ const isFoo = <D>(t: Context<D>) => t.equal<Foo>();
 ```
 Then, on the call site, apply the assertion with the context object before use:
 ```typescript
-test('Bar is Foo' as const, t =>
+test('Bar is Foo', t =>
     isFoo(t)<Bar>()
 )
 ```
@@ -288,11 +275,11 @@ Tests can fail for 2 reasons:
 A process of disambiguation converts `any`, `never` and `unknown` to unique symbols. The resulting behaviour is what you would expect from strict equality:
 
 ```typescript
-test('`any` is equal to itself' as const, t =>
+test('`any` is equal to itself', t =>
     t.equal<{ foo: Set<any> }, { foo: Set<any> }>()
 )
 
-test('`any` is not equal to `number`' as const, t =>
+test('`any` is not equal to `number`', t =>
     t.equal<{ foo: Set<any> }, { foo: Set<number> }>()
 //  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ FailingTest
 )
@@ -304,12 +291,12 @@ test('`any` is not equal to `number`' as const, t =>
 Assertions are set up with the assumption that the type under test should always be the narrowest of the two operands, the other one is thus not disambiguated in order to enable loose tests to be written:
 
 ```typescript
-test('It is possible to extend `any`' as const, t => [
+test('It is possible to extend `any`', t => [
     t.extends<number[], any[]>()
     t.includes<any[], number[]>()
 ])
 
-test('But the reverse is likely a mistake' as const, t => [
+test('But the reverse is likely a mistake', t => [
     t.extends<any[], number[]>()
 //  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~ FailingTest
     t.includes<number[], any[]>()
@@ -324,7 +311,7 @@ If you want the type under test to include `any`, `never` or `unknown` in an asy
 ```typescript
 import { _never } from 'ts-spec'
 
-test('use `_never` to extend `never`' as const, t => [
+test('use `_never` to extend `never`', t => [
     t.extends<[1, 2, never], [number, number, _never]>(),
 ])
 ```
@@ -349,7 +336,7 @@ declare module 'ts-spec' {
 }
 
 // Now we are safe
-test('Registered user classes are disambiguated' as const, t =>
+test('Registered user classes are disambiguated', t =>
     t.equal<Foo<any>, Foo<number>>()
 //  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ FailingTest
 )

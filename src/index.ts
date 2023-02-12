@@ -32,7 +32,7 @@ type Includes<
 
 export { test, debug, _, Context }
 
-const test = <T extends CheckT, C = Context<T>, CheckT = Title<T>>
+const test = <T extends string & CheckT, C = Context<T>, CheckT = Title<T>>
     (title: T, callback: (t: C) => PassingTest | PassingTest[]) => {}
 
 const debug = (callback: (t: Context<any>) => PassingTest | PassingTest[]) => {}

@@ -96,7 +96,7 @@ type F1 = number & { _tag: 'dollar' };
 type F2 = number & { _tag: any };
 
 
-test('Intersection' as const, t => [
+test('Intersection', t => [
     // ts-spec/equal
     t.equal<A1, A3>(),
     // @ts-expect-error: Equal1
@@ -115,7 +115,7 @@ test('Intersection' as const, t => [
     t.true<Equal7<A1, A3>>(),
 ])
 
-test('Union' as const, t => [
+test('Union', t => [
     // ts-spec/equal
     t.equal<A1 | A2, A2>(),
     // @ts-expect-error: Equal1
@@ -134,7 +134,7 @@ test('Union' as const, t => [
     t.true<Equal7<A1 | A2, A2>>(),
 ])
 
-test('Union + intersection' as const, t => [
+test('Union + intersection', t => [
     // ts-spec/equal
     t.equal<B1, B2>(),
     // @ts-expect-error: Equal1
@@ -153,7 +153,7 @@ test('Union + intersection' as const, t => [
     t.true<Equal7<B1, B2>>(),
 ])
 
-test('exclude `any` fliped pairs' as const, t => [
+test('exclude `any` fliped pairs', t => [
     // ts-spec/equal
     t.not.equal<C1, C2>(),
     // Equal1
@@ -172,7 +172,7 @@ test('exclude `any` fliped pairs' as const, t => [
     t.false<Equal7<C1, C2>>(),
 ])
 
-test('exclude `any` single key obj' as const, t => [
+test('exclude `any` single key obj', t => [
     // ts-spec/equal
     t.not.equal<D1, D2>(),
     // Equal1
@@ -191,7 +191,7 @@ test('exclude `any` single key obj' as const, t => [
     t.false<Equal7<D1, D2>>(),
 ])
 
-test('exclude `any` unknown user class' as const, t => [
+test('exclude `any` unknown user class', t => [
     // @ts-expect-error: ts-spec/equal
     t.not.equal<E1, E2>(),
     // Equal1
@@ -210,7 +210,7 @@ test('exclude `any` unknown user class' as const, t => [
     t.false<Equal7<E1, E2>>(),
 ])
 
-test('branded types' as const, t => [
+test('branded types', t => [
     // ts-spec/equal
     t.not.equal<F1, F2>(),
     // Equal1

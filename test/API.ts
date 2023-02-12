@@ -1,56 +1,56 @@
 import { test, _ } from '../src'
 
-test('type / type' as const, t => [
+test('type / type', t => [
     t.equal<1, 1>(),
     t.not.equal<2, 1>()
 ])
 
-test('type / type curry' as const, t => [
+test('type / type curry', t => [
     t.equal<1>() <1>(),
     t.not.equal<2>() <1>()
 ])
 
-test('type / value curry' as const, t =>[
+test('type / value curry', t =>[
     t.equal<1>()(1 as const),
     t.not.equal<2>()(1 as const)
 ])
 
-test('type / value curry placeholder' as const, t =>[
+test('type / value curry placeholder', t =>[
     t.equal(<1>_)(1 as const),
     t.not.equal(<2>_)(1 as const)
 ])
 
-test('type / value placeholder' as const, t =>[
+test('type / value placeholder', t =>[
     t.equal(<1>_, 1 as const),
     t.not.equal(<2>_, 1 as const)
 ])
 
-test('value / type curry' as const, t =>[
+test('value / type curry', t =>[
     t.equal(1 as const)<1>(),
     t.not.equal(2 as const)<1>()
 ])
 
-test('value / type curry placeholder' as const, t =>[
+test('value / type curry placeholder', t =>[
     t.equal(1 as const)(<1>_),
     t.not.equal(2 as const)(<1>_)
 ])
 
-test('value / type placeholder' as const, t =>[
+test('value / type placeholder', t =>[
     t.equal(1 as const, <1>_),
     t.not.equal(2 as const, <1>_)
 ])
 
-test('value / value curry' as const, t =>[
+test('value / value curry', t =>[
     t.equal(1 as const)(1 as const),
     t.not.equal(2 as const)(1 as const)
 ])
 
-test('value / value' as const, t =>[
+test('value / value', t =>[
     t.equal(1 as const, 1 as const),
     t.not.equal(2 as const, 1 as const)
 ])
 
-test('unary test value' as const, t => [
+test('unary test value', t => [
     t.false(false as const),
     t.true(true as const),
     t.any(null as any),
@@ -63,7 +63,7 @@ test('unary test value' as const, t => [
     t.not.unknown(null),
 ])
 
-test('unary test type' as const, t => [
+test('unary test type', t => [
     t.false<false>(),
     t.true<true>(),
     t.any<any>(),
