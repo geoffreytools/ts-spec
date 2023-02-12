@@ -1,4 +1,4 @@
-import { apply, Unwrapped, unwrap, TypesMap } from 'free-types-core';
+import { apply, Unwrapped, unwrap, TypesMap, Type, A } from 'free-types-core';
 
 // direct type-level API
 
@@ -45,37 +45,24 @@ declare const missing: unique symbol;
 
 type PassingTest = boolean | ((a: any) => boolean);
 
-type Context<T> = {
-    equal: {
-        <A>(a?: A) : <B>(b?: B) => Equality<T, A, B, true>
-        <A, B>(..._: [] | [A, B]) : Equality<T, A, B, true>
-    },
-    extends: {
-        <A>(a?: A) : <B>(b?: B) => LeftEquality<T, A, B, true>
-        <A, B>(..._: [] | [A, B]) : LeftEquality<T, A, B, true>
-    },
-    includes: {
-        <A>(a?: A) : <B>(b?: B) => RightEquality<T, A, B, true>
-        <A, B>(..._: [] | [A, B]) : RightEquality<T, A, B, true>
-    },
+type BinaryTest<T extends string, $F extends $BinaryAssertion> = {
+    <A>(a?: A): <B>(b?: B) => apply<$F, [T, A, B]>
+    <A, B>(..._: [] | [A, B]): apply<$F, [T, A, B]>
+}
+
+type Context<T extends string> = {
+    equal: BinaryTest<T, $Equality<true>>,
+    extends: BinaryTest<T, $LeftEquality<true>>,
+    includes: BinaryTest<T, $RightEquality<true>>,
     any: <A>(a?: A) => Test<T, A, any, true, Any<A>>,
     unknown: <A>(a?: A) => Test<T, A, unknown, true, Unknown<A>>,
     never: <A>(a?: A) => Test<T, A, never, true, Never<A>>,
     true: <A>(a?: A) => Test<T, A, true, true, True<A>>,
     false: <A>(a?: A) => Test<T, A, false, true, False<A>>
     not: {
-        equal: {
-            <A>(a?: A) : <B>(b?: B) => Equality<T, A, B, false>
-            <A, B>(..._: [] | [A, B]) : Equality<T, A, B, false>
-        },
-        extends: {
-            <A>(a?: A) : <B>(b?: B) => LeftEquality<T, A, B, false>
-            <A, B>(..._: [] | [A, B]) : LeftEquality<T, A, B, false>
-        },
-        includes: {
-            <A>(a?: A) : <B>(b?: B) => RightEquality<T, A, B, false>
-            <A, B>(..._: [] | [A, B]) : RightEquality<T, A, B, false>
-        },
+        equal: BinaryTest<T, $Equality<false>>,
+        extends: BinaryTest<T, $LeftEquality<false>>,
+        includes: BinaryTest<T, $RightEquality<false>>,
         any: <A>(a?: A) => Test<T, A, any, false, Any<A>>,
         unknown:  <A>(a?: A) => Test<T, A, unknown, false, Unknown<A>>,
         never: <A>(a?: A) => Test<T, A, never, false, Never<A>>
@@ -84,17 +71,27 @@ type Context<T> = {
     }
 }
 
-type Equality<Title, A, B, T> =
-    Test<Title, A, B, T, Eq<Disambiguate<A>, Disambiguate<B>>>
+interface $BinaryAssertion extends
+    Type<[string, unknown, unknown], PassingTest | FailingTest | Debug>
+        { Title: A<this>, A: this[1], B: this[2] }
 
-type LeftEquality<Title, A, B, T> =
-    Test<Title, A, B, T, DoesExtend<Disambiguate<A>, B>>
+interface $Equality<Accept extends boolean> extends $BinaryAssertion {
+    type: Test<this['Title'], this['A'], this['B'], Accept,
+        Eq<Disambiguate<this['A']>, Disambiguate<this['B']>>>
+}
 
-type RightEquality<Title, A, B, T> =
-    Test<Title, A, B, T, DoesExtend<Disambiguate<B>, A>>
+interface $LeftEquality<Accept extends boolean> extends $BinaryAssertion {
+    type: Test<this['Title'], this['A'], this['B'], Accept,
+        DoesExtend<Disambiguate<this['A']>, this['B']>>
+}
 
-type Test<Title, A, B, Success, R> =
-    Either<Eq<R, Success>, Failure<Title, A, B>>
+interface $RightEquality<Accept extends boolean> extends $BinaryAssertion {
+    type: Test<this['Title'], this['A'], this['B'], Accept,
+        DoesExtend<Disambiguate<this['B']>, this['A']>>
+}
+
+type Test<Title extends string, A, B, Accept, R> =
+    Either<Eq<R, Accept>, Failure<Title, A, B>>
 
 // Common
 
@@ -102,8 +99,8 @@ export type { _never, _any, _unknown, TypesMap }
 
 declare const result: unique symbol;
 type Failure<T, A, B> = Fork<Any<T>, Debug<A, B>, FailingTest<T, A, B>>
-type FailingTest<T, A, B> = { title: T, a: A, b: B, [result]: 'fail' }
-type Debug<A, B> = { a: A, b: B, [result]: 'fail' };
+type FailingTest<T = string, A = unknown, B = unknown> = { title: T, a: A, b: B, [result]: 'fail' }
+type Debug<A = unknown, B = unknown> = { a: A, b: B, [result]: 'fail' };
 type Valid<T> = Not<Or<AnyOrUnknown<T>, Never<T>>>;
 type AnyOrUnknown<T> = Eq<T, unknown>;
 
