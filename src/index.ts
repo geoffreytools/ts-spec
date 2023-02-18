@@ -133,14 +133,14 @@ type Disambiguate<T> =
     Any<T> extends true ? _any
     : Never<T> extends true ? _never
     : IsIntrinsic<T> extends true ? T
-    : {} extends T ? {}
+    : {} extends SafeRequired<T> ? {}
     : Unknown<T> extends true ? _unknown
     : T extends unknown[]
     ? T extends [] | [unknown, ...unknown[]]
         ? DisambiguateTuple<T>
         : Disambiguate<T[0]>[]
-    : T extends { [k: string | number | symbol]: unknown }
-    ? { [K in keyof T]: Disambiguate<T[K]> }
+    : T extends { [k: PropertyKey]: unknown }
+    ? { [K in keyof T]: Disambiguate<T[K]> } & { readonlyKeys: inferReadonlyKeys<T> }
     : T extends number | string | boolean | bigint ? DisambiguateBranded<T>
     : DisambiguateOther<T>
 
@@ -180,3 +180,20 @@ type Widen<T> =
 
 type GetTag<T, U> = {[K in keyof T as K extends keyof U ? never : K]: T[K]}
 type GetRadical<T, Tag> = T extends infer R & Tag ? R : never
+
+type inferReadonlyKeys<T> = {
+    [K in keyof T]-?: InferReadonlyKey<{[k in K]-?: T[K]}, K>
+} extends infer R ? R[keyof R] : never
+
+type InferReadonlyKey<T, K extends PropertyKey> = T extends { [k in K]: infer R }
+    ? ReadonlyAwareEquals<T, { readonly [k in K]: R }> extends true ? K : never
+: never;
+
+type ReadonlyAwareEquals<X, Y> =
+    (<T>() => T extends X ? 1 : 2) extends
+    (<U>() => U extends Y ? 1 : 2) ? true : false;
+
+type SafeRequired<T> =
+    T extends unknown[] ? T
+    : keyof T extends never ? T
+    : Required<T>;
