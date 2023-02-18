@@ -41,3 +41,7 @@ test('disambiguation preserves true equality', t => [
     t.equal<[1, 2, never], [1, 2, never]>(),
     t.equal<[1, 2, unknown], [1, 2, unknown]>(),
 ])
+
+test('`any` spreads to an array', t => 
+    t.equal<[...any], [...any[]]>()
+)
