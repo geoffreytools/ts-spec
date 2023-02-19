@@ -1,5 +1,25 @@
 import { apply, Unwrapped, unwrap, TypesMap, Type, A } from 'free-types-core';
 
+// Config 
+
+export type { Config }
+
+type ConfigOptions = 'strictOptionalProperties'
+
+interface Config {}
+
+
+type IfConfig<K extends ConfigOptions, Switch extends boolean, Value> = Fork<
+    Or<
+        Eq<Config[K & keyof Config], Switch>,
+        Eq<Config[K & keyof Config], never>
+    >,
+    Value,
+    never
+>
+
+type Disambiguate<A, B> = _Disambiguate<A, IfConfig<'strictOptionalProperties', true, B>>
+
 // direct type-level API
 
 export type { Equal, Extends, Includes }
@@ -129,7 +149,7 @@ type _any = typeof _any;
 type _never = typeof _never;
 type _unknown = typeof _unknown;
 
-type Disambiguate<T, Model> =
+type _Disambiguate<T, Model> =
     Any<T> extends true ? _any
     : Never<T> extends true ? _never
     : IsIntrinsic<T> extends true ? T
