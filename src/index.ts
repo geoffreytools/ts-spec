@@ -13,19 +13,19 @@ interface FailInclude<A, B> { [result]: [A, B]}
 type Equal<
     A extends R extends true ? unknown : never,
     B,
-    R = Eq<Disambiguate<A>, Disambiguate<B>>
+    R = Eq<Disambiguate<A, B>, Disambiguate<B, A>>
 > = R extends true ? OK : FailEqual<A, B>;
 
 type Extends<
     A extends R extends true ? unknown : never,
     B,
-    R = Disambiguate<A> extends B ? true : false
+    R = Disambiguate<A, B> extends B ? true : false
 > = R extends true ? OK : FailExtend<A, B>;
 
 type Includes<
     A extends R extends true ? unknown : never,
     B,
-    R = Disambiguate<B> extends A ? true : false
+    R = Disambiguate<B, A> extends A ? true : false
 > = R extends true ? OK : FailInclude<A, B>;
 
 // fully-featured API
@@ -77,17 +77,17 @@ interface $BinaryAssertion extends
 
 interface $Equality<Accept extends boolean> extends $BinaryAssertion {
     type: Test<this['Title'], this['A'], this['B'], Accept,
-        Eq<Disambiguate<this['A']>, Disambiguate<this['B']>>>
+        Eq<Disambiguate<this['A'], this['B']>, Disambiguate<this['B'], this['A']>>>
 }
 
 interface $LeftEquality<Accept extends boolean> extends $BinaryAssertion {
     type: Test<this['Title'], this['A'], this['B'], Accept,
-        DoesExtend<Disambiguate<this['A']>, this['B']>>
+        DoesExtend<Disambiguate<this['A'], this['B']>, this['B']>>
 }
 
 interface $RightEquality<Accept extends boolean> extends $BinaryAssertion {
     type: Test<this['Title'], this['A'], this['B'], Accept,
-        DoesExtend<Disambiguate<this['B']>, this['A']>>
+        DoesExtend<Disambiguate<this['B'], this['A']>, this['A']>>
 }
 
 type Test<Title extends string, A, B, Accept, R> =
@@ -129,7 +129,7 @@ type _any = typeof _any;
 type _never = typeof _never;
 type _unknown = typeof _unknown;
 
-type Disambiguate<T> =
+type Disambiguate<T, Model> =
     Any<T> extends true ? _any
     : Never<T> extends true ? _never
     : IsIntrinsic<T> extends true ? T
@@ -137,15 +137,17 @@ type Disambiguate<T> =
     : Unknown<T> extends true ? _unknown
     : T extends unknown[]
     ? T extends [] | [unknown, ...unknown[]]
-        ? DisambiguateTuple<T>
-        : Disambiguate<T[0]>[]
+        ? DisambiguateTuple<T, Model>
+        : Disambiguate<T[0], 0 extends keyof Model ? Model[0] : never>[]
     : T extends { [k: PropertyKey]: unknown }
-    ? { [K in keyof T]: Disambiguate<T[K]> } & { readonlyKeys: inferReadonlyKeys<T> }
+    ? { [K in keyof T]: Disambiguate<T[K], K extends keyof Model ? Model[K] : never> }
+        & { readonlyKeys: inferReadonlyKeys<T> }
+        & Fork<Never<Model>, {}, OptionalProps<Model>>
     : T extends number | string | boolean | bigint ? DisambiguateBranded<T>
     : DisambiguateOther<T>
 
-type DisambiguateTuple<T> = {
-    [K in keyof T]: K extends keyof [] ? T[K] : Disambiguate<T[K]>
+type DisambiguateTuple<T, Model> = {
+    [K in keyof T]: K extends keyof [] ? T[K] : Disambiguate<T[K], K extends keyof Model ? Model[K] : never>
 };
 
 type Intrinsic =
@@ -166,10 +168,10 @@ type DisambiguateOther<
     T,
     U extends Unwrapped = unwrap<T, TypesMap>,
 > = [U] extends [never] ? T
-    : apply<U['type'], DisambiguateTuple<U['args']>>;
+    : apply<U['type'], DisambiguateTuple<U['args'], never>>;
 
 type DisambiguateBranded<T, Tag = GetTag<T, Widen<T>>> = 
-    Tag extends object ? GetRadical<T, Tag> & Disambiguate<Tag> : Tag
+    Tag extends object ? GetRadical<T, Tag> & Disambiguate<Tag, never> : Tag
 
 type Widen<T> =
     T extends number ? number
@@ -197,3 +199,7 @@ type SafeRequired<T> =
     T extends unknown[] ? T
     : keyof T extends never ? T
     : Required<T>;
+
+type OptionalProps<T> = {
+    [K in keyof T as {} extends { [P in K]: T[P]; } ? K : never]?: unknown
+}
