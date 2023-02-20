@@ -8,17 +8,36 @@ type ConfigOptions = 'strictOptionalProperties'
 
 interface Config {}
 
+type ConfigSetting = {
+    option: ConfigOptions,
+    enabledWith: boolean,
+    enabledByDefault: boolean,
+    value: unknown,
+    fallback: unknown
+};
 
-type IfConfig<K extends ConfigOptions, Switch extends boolean, Value> = Fork<
-    Or<
-        Eq<Config[K & keyof Config], Switch>,
-        Eq<Config[K & keyof Config], never>
+type IfConfig<T extends ConfigSetting> = Fork<
+    Fork<
+        Eq<T['enabledByDefault'], true>,
+        Or<
+            Eq<Config[T['option'] & keyof Config], T['enabledWith']>,
+            Eq<Config[T['option'] & keyof Config], never>
+        >,
+        Eq<Config[T['option'] & keyof Config], T['enabledWith']>
     >,
-    Value,
-    never
+    T['value'],
+    T['fallback']
 >
 
-type Disambiguate<A, B> = _Disambiguate<A, IfConfig<'strictOptionalProperties', true, B>>
+type StrictOptionalProperties = {
+    option: 'strictOptionalProperties',
+    enabledWith: true,
+    enabledByDefault: true
+}
+
+type Disambiguate<A, B> = _Disambiguate<A, IfConfig<
+    StrictOptionalProperties & { value: B, fallback: never }
+>>
 
 // direct type-level API
 
