@@ -174,16 +174,20 @@ type _any = typeof _any;
 type _never = typeof _never;
 type _unknown = typeof _unknown;
 
+type Tuple = readonly [] | readonly [unknown?] | readonly [unknown, ...unknown[]];
+
 type _Disambiguate<T, Model> =
     Any<T> extends true ? _any
     : Never<T> extends true ? _never
     : IsIntrinsic<T> extends true ? T
     : {} extends SafeRequired<T> ? {}
     : Unknown<T> extends true ? _unknown
-    : T extends unknown[]
-    ? T extends [] | [unknown, ...unknown[]]
-        ? DisambiguateTuple<T, Model>
-        : Disambiguate<T[0], 0 extends keyof Model ? Model[0] : never>[]
+    : T extends readonly unknown[]
+    ? any[] extends T
+        ? Disambiguate<T[0], 0 extends keyof Model ? Model[0] : never> extends
+            infer R ? T extends unknown[] ? R[] : readonly R[]
+            : never
+        : DisambiguateTuple<T, Model>
     : T extends { [k: PropertyKey]: unknown } ? DisambiguateObject<T, Model>
     : T extends number | string | boolean | bigint ? DisambiguateBranded<T>
     : DisambiguateOther<T, Model>

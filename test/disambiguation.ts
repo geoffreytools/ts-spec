@@ -20,6 +20,21 @@ test('disambiguate built-in basic types', t => [
     t.not.equal<{ foo: number }, { foo: any }>(),
     t.not.equal<{ foo: number }[], { foo: any }[]>(),
     t.not.equal<[{ foo: number }], [{ foo: any }]>(),
+    t.extends<[number],  readonly [any]>(),
+    t.extends<number[],  readonly any[]>(),
+    t.includes<readonly [any],  [number]>(),
+    t.includes<readonly any[], number[]>(),
+    t.not.includes<[any],  readonly [number]>(),
+    t.not.includes<any[],  readonly number[]>(),
+    t.not.extends<readonly [number],  [any]>(),
+    t.not.extends<readonly number[], any[]>(),
+])
+
+test('disambiguate tuples with optional members', t => [
+    t.not.equal<[number?], (number | undefined)[]>(),
+    t.not.equal<[number?, number?], (number | undefined)[]>(),
+    t.not.equal<[number?], [any?]>(),
+    t.not.equal<[number?, number?], [number?, any?]>()
 ])
 
 test('disambiguate built-in class', t => [
