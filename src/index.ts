@@ -64,13 +64,13 @@ type Equal<
 type Extends<
     A extends R extends true ? unknown : never,
     B,
-    R = Disambiguate<A, B> extends B ? true : false
+    R = Disambiguate<A, B> extends StrictReadonly<B> ? true : false
 > = R extends true ? OK : FailExtend<A, B>;
 
 type Includes<
     A extends R extends true ? unknown : never,
     B,
-    R = Disambiguate<B, A> extends A ? true : false
+    R = Disambiguate<B, A> extends StrictReadonly<A> ? true : false
 > = R extends true ? OK : FailInclude<A, B>;
 
 // fully-featured API
@@ -127,12 +127,12 @@ interface $Equality<Accept extends boolean> extends $BinaryAssertion {
 
 interface $LeftEquality<Accept extends boolean> extends $BinaryAssertion {
     type: Test<this['Title'], this['A'], this['B'], Accept,
-        DoesExtend<Disambiguate<this['A'], this['B']>, this['B']>>
+        DoesExtend<Disambiguate<this['A'], this['B']>, StrictReadonly<this['B']>>>
 }
 
 interface $RightEquality<Accept extends boolean> extends $BinaryAssertion {
     type: Test<this['Title'], this['A'], this['B'], Accept,
-        DoesExtend<Disambiguate<this['B'], this['A']>, this['A']>>
+        DoesExtend<Disambiguate<this['B'], this['A']>, StrictReadonly<this['A']>>>
 }
 
 type Test<Title extends string, A, B, Accept, R> =
@@ -174,7 +174,8 @@ type _any = typeof _any;
 type _never = typeof _never;
 type _unknown = typeof _unknown;
 
-type Tuple = readonly [] | readonly [unknown?] | readonly [unknown, ...unknown[]];
+type Obj = { [k: PropertyKey]: unknown };
+type Interface = { [k: string]: any } & { [Symbol.toStringTag]?: never }
 
 type _Disambiguate<T, Model> =
     Any<T> extends true ? _any
@@ -188,7 +189,7 @@ type _Disambiguate<T, Model> =
             infer R ? T extends unknown[] ? R[] : readonly R[]
             : never
         : DisambiguateTuple<T, Model>
-    : T extends { [k: PropertyKey]: unknown } ? DisambiguateObject<T, Model>
+    : T extends Obj ? DisambiguateObject<T, Model>
     : T extends number | string | boolean | bigint ? DisambiguateBranded<T>
     : DisambiguateOther<T, Model>
 
@@ -200,6 +201,11 @@ type DisambiguateObject<T, Model> =
     { [K in keyof T]: Disambiguate<T[K], K extends keyof Model ? Model[K] : never> }
         & { readonlyKeys: inferReadonlyKeys<T> }
         & Fork<Never<Model>, {}, OptionalProps<Model>>
+
+type StrictReadonly<T> =
+    T extends readonly unknown[] ? T
+    : T extends Obj | Interface ? T & { readonlyKeys: inferReadonlyKeys<T> }
+    : T;
 
 type Intrinsic =
     | Uppercase<string>
@@ -224,8 +230,6 @@ type DisambiguateOther<
     ? apply<U['type'], DisambiguateTuple<U['args'], never>>
     : T extends Interface ? DisambiguateObject<T, Model>
     : T;
-
-type Interface = { [k: string]: any } & { [Symbol.toStringTag]?: never }
 
 type DisambiguateBranded<T, Tag = GetTag<T, Widen<T>>> = 
     Tag extends object ? GetRadical<T, Tag> & Disambiguate<Tag, never> : Tag
