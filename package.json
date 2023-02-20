@@ -26,7 +26,7 @@
     "free-types-core": "^0.4.6"
   },
   "devDependencies": {
-    "typescript": "^4.7.4"
+    "typescript": "^4.9.5"
   },
   "scripts": {
     "test": "tsc; tsc -p ./tsconfig-test-non-strict.json",
