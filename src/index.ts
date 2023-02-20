@@ -184,16 +184,18 @@ type _Disambiguate<T, Model> =
     ? T extends [] | [unknown, ...unknown[]]
         ? DisambiguateTuple<T, Model>
         : Disambiguate<T[0], 0 extends keyof Model ? Model[0] : never>[]
-    : T extends { [k: PropertyKey]: unknown }
-    ? { [K in keyof T]: Disambiguate<T[K], K extends keyof Model ? Model[K] : never> }
-        & { readonlyKeys: inferReadonlyKeys<T> }
-        & Fork<Never<Model>, {}, OptionalProps<Model>>
+    : T extends { [k: PropertyKey]: unknown } ? DisambiguateObject<T, Model>
     : T extends number | string | boolean | bigint ? DisambiguateBranded<T>
-    : DisambiguateOther<T>
+    : DisambiguateOther<T, Model>
 
 type DisambiguateTuple<T, Model> = {
     [K in keyof T]: K extends keyof [] ? T[K] : Disambiguate<T[K], K extends keyof Model ? Model[K] : never>
 };
+
+type DisambiguateObject<T, Model> =
+    { [K in keyof T]: Disambiguate<T[K], K extends keyof Model ? Model[K] : never> }
+        & { readonlyKeys: inferReadonlyKeys<T> }
+        & Fork<Never<Model>, {}, OptionalProps<Model>>
 
 type Intrinsic =
     | Uppercase<string>
@@ -212,10 +214,14 @@ type _IsIntrinsic<T> = boolean extends (
 ) ? true : false; 
 
 type DisambiguateOther<
-    T,
+    T, Model,
     U extends Unwrapped = unwrap<T, TypesMap>,
-> = [U] extends [never] ? T
-    : apply<U['type'], DisambiguateTuple<U['args'], never>>;
+> = ([U] extends [never] ? true : false) extends false
+    ? apply<U['type'], DisambiguateTuple<U['args'], never>>
+    : T extends Interface ? DisambiguateObject<T, Model>
+    : T;
+
+type Interface = { [k: string]: any } & { [Symbol.toStringTag]?: never }
 
 type DisambiguateBranded<T, Tag = GetTag<T, Widen<T>>> = 
     Tag extends object ? GetRadical<T, Tag> & Disambiguate<Tag, never> : Tag
