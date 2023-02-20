@@ -4,7 +4,7 @@ import { apply, Unwrapped, unwrap, TypesMap, Type, A } from 'free-types-core';
 
 export type { Config }
 
-type ConfigOptions = 'strictOptionalProperties'
+type ConfigOptions = 'strictOptionalProperties' | 'TS 4.8'
 
 interface Config {}
 
@@ -33,6 +33,12 @@ type StrictOptionalProperties = {
     option: 'strictOptionalProperties',
     enabledWith: true,
     enabledByDefault: true
+}
+
+type TS4_8 = {
+    option: 'TS 4.8',
+    enabledWith: true,
+    enabledByDefault: false
 }
 
 type Disambiguate<A, B> = _Disambiguate<A, IfConfig<
@@ -195,7 +201,9 @@ type Intrinsic =
     | Capitalize<string>
     | Uncapitalize<string>
 
-type IsIntrinsic<T> = boolean extends (
+type IsIntrinsic<T> = IfConfig<TS4_8 & { value: false, fallback: _IsIntrinsic<T> }>;
+
+type _IsIntrinsic<T> = boolean extends (
     Intrinsic extends infer I ?
         I extends T ?
             T extends I ? true : false
