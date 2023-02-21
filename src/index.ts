@@ -176,6 +176,7 @@ type _unknown = typeof _unknown;
 
 type Obj = { [k: PropertyKey]: unknown };
 type Interface = { [k: string]: any } & { [Symbol.toStringTag]?: never }
+type Constructor = (new (...args: any[]) => any);
 
 type _Disambiguate<T, Model> =
     Any<T> extends true ? _any
@@ -204,6 +205,7 @@ type DisambiguateObject<T, Model> =
 
 type StrictReadonly<T> =
     T extends readonly unknown[] ? T
+    : T extends Constructor ? T
     : T extends Obj | Interface ? T & { readonlyKeys: inferReadonlyKeys<T> }
     : T;
 
@@ -228,6 +230,7 @@ type DisambiguateOther<
     U extends Unwrapped = unwrap<T, TypesMap>,
 > = ([U] extends [never] ? true : false) extends false
     ? apply<U['type'], DisambiguateTuple<U['args'], never>>
+    : T extends Constructor ? T
     : T extends Interface ? DisambiguateObject<T, Model>
     : T;
 
