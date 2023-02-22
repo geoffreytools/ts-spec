@@ -1,4 +1,4 @@
-import { test, _never } from '../src'
+import { test } from '../src'
 import { Type } from 'free-types-core';
 
 test('disambiguate raw type', t => [
