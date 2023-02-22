@@ -182,8 +182,8 @@ type _Disambiguate<T, Model> =
     Any<T> extends true ? _any
     : Never<T> extends true ? _never
     : IsIntrinsic<T> extends true ? T
-    : {} extends SafeRequired<T> ? {}
     : Unknown<T> extends true ? _unknown
+    : {} extends SafeRequired<T> ? {}
     : T extends readonly unknown[]
     ? any[] extends T
         ? Disambiguate<T[0], 0 extends keyof Model ? Model[0] : never> extends
