@@ -41,7 +41,7 @@ type TS4_8 = {
     enabledByDefault: false
 }
 
-type Disambiguate<A, B> = _Disambiguate<A, IfConfig<
+type Disambiguate<A, B = never> = _Disambiguate<A, IfConfig<
     StrictOptionalProperties & { value: B, fallback: never }
 >>
 
