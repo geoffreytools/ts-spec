@@ -1,6 +1,6 @@
 {
   "name": "ts-spec",
-  "version": "1.4.5",
+  "version": "1.4.6",
   "description": "A small library for testing your types",
   "main": "dist/index.js",
   "type": "module",
