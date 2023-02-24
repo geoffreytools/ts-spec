@@ -184,7 +184,7 @@ type _Disambiguate<T, Model> =
     : Never<T> extends true ? _never
     : IsIntrinsic<T> extends true ? T
     : Unknown<T> extends true ? _unknown
-    : {} extends SafeRequired<T> ? {}
+    : {} extends SafeRequired<T> ? {} extends Model ? DisambiguateObject<{}, Model> : {}
     : T extends readonly unknown[]
     ? any[] extends T
         ? Disambiguate<T[0], 0 extends keyof Model ? Model[0] : never> extends
@@ -266,5 +266,5 @@ type SafeRequired<T> =
     : Required<T>;
 
 type OptionalProps<T> = {
-    [K in keyof T as {} extends { [P in K]: T[P]; } ? K : never]?: unknown
+    [K in keyof T as {} extends { [P in K]: T[P]; } ? K : never]?: _unknown
 }
