@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/geoffreytools/ts-spec#readme",
   "dependencies": {
-    "free-types-core": "^0.4.6"
+    "free-types-core": "^0.8.0"
   },
   "devDependencies": {
     "typescript": "^4.9.5"
