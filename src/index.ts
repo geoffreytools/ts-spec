@@ -88,7 +88,7 @@ type Title<T> = Fork<DoesExtend<T, string>, ConstString<T>, string>;
 type ConstString<T> = Fork<Eq<T, string>, { [missing]: 'as const' }, T>;
 declare const missing: unique symbol;
 
-type PassingTest = boolean | ((a: any) => boolean);
+type PassingTest = boolean | ((a: any) => boolean | boolean[]);
 
 type BinaryTest<T extends string, $F extends $BinaryAssertion> = {
     <A>(...a: [A] | []): <B>(...b: [B] | []) => apply<$F, [T, A, B]>
