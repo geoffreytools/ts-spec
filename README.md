@@ -76,6 +76,7 @@ The function `test` is composed of a test description and a callback.
 
 The callback can return one or multiple assertions, which can be wrapped in arbitrary ways in tuples, promises, functions or nested tests, enabling all kinds of patterns and test hierarchies.
 
+
 #### Single assertion
 
 ```ts
@@ -85,7 +86,7 @@ test('test description', t =>
 ```
 
 #### Array of assertions
-The recommended way to do it is the following:
+The recommended way to return multiple assertions is an implicit return:
 ```typescript
 test('test description', t => [
     t.pass(),
@@ -93,7 +94,7 @@ test('test description', t => [
 //  ~~~~~~~
 ]);
 ```
-The following, although equivalent, prints noisier error messages
+Although equivalent, explicit returns have the disadvantage that the error is reported at the callback level, which results in noisier error messages:
 ```typescript
 test('test description', t => {
 //                       ~~~~~~
@@ -109,20 +110,30 @@ If you need to share local variables across assertions, nested tests may be a be
 #### Assertion returning functions
 This pattern can be useful for testing type narrowing with only little boilerplate:
 ```typescript
-test('`includedIn` narrows down its input', t =>
-    input => includedIn(input, [1, 2, 3]) && t.equal(input, <number>_)
+test('`isArray` type guard narrows its input', t =>
+    (input: number[] | number) =>
+        Array.isArray(input)
+        && t.equal(input)<number[]>()
 );
 ```
-or for scoping test variables
+It also makes unresolved generics accessible for testing:
 ```typescript
-test('`factory` returns the right instance', t => [
+test('`Filter` returns useful type when input is generic', t =>
+    <T extends (number | string)[]>() =>
+        t.equal<Filter<T, number>, number[]>()
+)
+```
+
+And of course it allows for scoping variables:
+```typescript
+test('`bar` returns true', t => [
     () => {
-        const foo = factory('foo');
-        return t.equal (foo) <Foo>()
+        const foo = 1;
+        return t.true(bar(foo))
     },
     () => {
-        const bar = factory('bar');
-        return t.equal (bar) <Bar>()
+        const foo = 2;
+        return t.true(bar(foo))
     }
 ]);
 ```
