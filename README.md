@@ -66,10 +66,6 @@ The downside of expecting errors is that they can have other reasons to occur th
 [Writing tests](#writing-tests) | [Assertions](#assertions) | [Equality](#equality)
 
 ## Writing tests
-### `debug`
-
-The function `debug` has the same functionality as `test` but doesn't accept a test description.
-
 ### `test`
 
 The function `test` is composed of a test description and a callback.

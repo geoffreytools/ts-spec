@@ -79,7 +79,7 @@ type Includes<
 
 // fully-featured API
 
-export { test, debug, _, Context }
+export { test, _, Context }
 
 const test = <
     T extends string & CheckTitle,
@@ -88,8 +88,6 @@ const test = <
     CheckTitle = Title<T>,
 > (title: T, callback: (t: C) => R ) =>
     null as any as R;
-
-const debug = (callback: (t: Context<any>) => PassingTest) => {}
 
 const _ = null as unknown;
 
