@@ -78,9 +78,9 @@ type Includes<
 export { test, debug, _, Context }
 
 const test = <T extends string & CheckT, C = Context<T>, CheckT = Title<T>>
-    (title: T, callback: (t: C) => PassingTest | PassingTest[]) => {}
+    (title: T, callback: (t: C) => PassingTest) => {}
 
-const debug = (callback: (t: Context<any>) => PassingTest | PassingTest[]) => {}
+const debug = (callback: (t: Context<any>) => PassingTest) => {}
 
 const _ = null as unknown;
 
@@ -88,7 +88,13 @@ type Title<T> = Fork<DoesExtend<T, string>, ConstString<T>, string>;
 type ConstString<T> = Fork<Eq<T, string>, { [missing]: 'as const' }, T>;
 declare const missing: unique symbol;
 
-type PassingTest = boolean | ((a: any) => boolean | boolean[]);
+type PassingTest =
+    | Passing
+    | ((a: any) => PassingTest)
+    | readonly PassingTest[]
+    | Promise<PassingTest>
+
+type Passing = true;
 
 type BinaryTest<T extends string, $F extends $BinaryAssertion> = {
     <A>(...a: [A] | []): <B>(...b: [B] | []) => apply<$F, [T, A, B]>
@@ -119,7 +125,7 @@ type Context<T extends string> = {
 }
 
 interface $BinaryAssertion extends
-    Type<[string, unknown, unknown], PassingTest | FailingTest | Debug>
+    Type<[string, unknown, unknown], Passing | FailingTest | Debug>
         { Title: A<this>, A: this[1], B: this[2] }
 
 interface $Equality<Accept extends boolean> extends $BinaryAssertion {

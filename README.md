@@ -32,7 +32,7 @@ Or run them with `tsc`:
 tests/your-test-file.ts:4:5 - error TS2322:
 
 Type 'FailingTest<"test description", number[], string[]>'
-is not assignable to type 'PassingTest | PassingTest[]'
+is not assignable to type 'PassingTest'
 
 t.equal ([1, 2, 3], <string[]>_)
         ~~~~~~~~~~~~~~~~~~~~~~~
@@ -74,7 +74,7 @@ The function `debug` has the same functionality as `test` but doesn't accept a t
 
 The function `test` is composed of a test description and a callback.
 
-The callback can return an assertion, an assertion returning function, or an array of either of them.
+The callback can return one or multiple assertions, which can be wrapped in arbitrary ways in tuples, promises, functions or nested tests, enabling all kinds of patterns and test hierarchies.
 
 #### Single assertion
 
