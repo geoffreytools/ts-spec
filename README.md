@@ -104,8 +104,10 @@ test('test description', t => {
 });
 ```
 
-#### Assertion returning function
-This pattern can be useful for testing type narrowing with only little boilerplate
+If you need to share local variables across assertions, nested tests may be a better option.
+
+#### Assertion returning functions
+This pattern can be useful for testing type narrowing with only little boilerplate:
 ```typescript
 test('`includedIn` narrows down its input', t =>
     input => includedIn(input, [1, 2, 3]) && t.equal(input, <number>_)
@@ -123,6 +125,40 @@ test('`factory` returns the right instance', t => [
         return t.equal (bar) <Bar>()
     }
 ]);
+```
+
+#### Nested tests
+
+Tests can be nested in order to reduce repetition in test titles:
+
+```typescript
+test('Given Foo', t =>
+// titles are accumulated by wrapping the current title with the parent `t`
+    test(t('When Bar'), t => 
+    //   -------------
+        test(t('Then A'), t => t.fail()),
+        //   -----------       ~~~~~~~~
+        // 'FailingTest<"Given Foo ❱ When Bar ❱ Then A", never, true>'
+        // is not assignable to type 'PassingTest'
+    )
+)
+```
+Nested tests are also a good option for sharing local variables because errors are reported on each leaf independently:
+```typescript
+test('Given `foo` is 1', t => {
+    const foo = 1;
+
+    return [
+        test(t('Something is true'), t =>
+            t.true(bar(foo))
+        ),
+
+        test(t('Something else'), t =>
+            t.fail()
+        //  ~~~~~~~
+        )
+    ]
+});
 ```
 
 ## Assertions 

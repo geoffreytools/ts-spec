@@ -1,5 +1,9 @@
 import { apply, Unwrapped, unwrap, TypesMap, Type, A } from 'free-types-core';
 
+// tests
+
+export { FailingTest }
+
 // Config 
 
 export type { Config }
@@ -77,8 +81,13 @@ type Includes<
 
 export { test, debug, _, Context }
 
-const test = <T extends string & CheckT, C = Context<T>, CheckT = Title<T>>
-    (title: T, callback: (t: C) => PassingTest) => {}
+const test = <
+    T extends string & CheckTitle,
+    R extends PassingTest,
+    C = Context<T>,
+    CheckTitle = Title<T>,
+> (title: T, callback: (t: C) => R ) =>
+    null as any as R;
 
 const debug = (callback: (t: Context<any>) => PassingTest) => {}
 
@@ -101,7 +110,7 @@ type BinaryTest<T extends string, $F extends $BinaryAssertion> = {
     <A, B>(..._: [] | [A, B]): apply<$F, [T, A, B]>
 }
 
-type Context<T extends string> = {
+type Context<T extends string> = (<U extends string>(title: U) => `${T} ❱ ${U}`) & {
     pass: () => true
     fail: () => Test<T, never, true, true, True<never>>
     equal: BinaryTest<T, $Equality<true>>,
