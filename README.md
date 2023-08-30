@@ -79,25 +79,27 @@ The callback can return an assertion, an assertion returning function, or an arr
 #### Single assertion
 
 ```ts
-test('foo is Foo', t =>
-    t.equal (foo) <Foo>()
+test('test description', t =>
+    t.pass()
 );
 ```
 
 #### Array of assertions
 The recommended way to do it is the following:
 ```typescript
-test('`factory` returns the right instance', t => [
-    t.equal (factory('foo')) <Foo>(),
-    t.equal (factory('bar')) <Bar>()
+test('test description', t => [
+    t.pass(),
+    t.fail()
+//  ~~~~~~~
 ]);
 ```
 The following, although equivalent, prints noisier error messages
 ```typescript
-test('`factory` returns the right instance', t => {
+test('test description', t => {
+//                       ~~~~~~
     return [
-        t.equal (factory('foo')) <Foo>(),
-        t.equal (factory('bar')) <Bar>()
+        t.pass(),
+        t.fail()
     ]
 });
 ```

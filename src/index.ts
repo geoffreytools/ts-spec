@@ -96,6 +96,8 @@ type BinaryTest<T extends string, $F extends $BinaryAssertion> = {
 }
 
 type Context<T extends string> = {
+    pass: () => true
+    fail: () => Test<T, never, true, true, True<never>>
     equal: BinaryTest<T, $Equality<true>>,
     extends: BinaryTest<T, $LeftEquality<true>>,
     includes: BinaryTest<T, $RightEquality<true>>,
