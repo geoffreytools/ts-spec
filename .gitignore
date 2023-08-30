@@ -1,4 +1,4 @@
 .vscode
 node_modules
-traceDir
+ts-trace
 dist

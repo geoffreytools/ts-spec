@@ -23,7 +23,8 @@
   },
   "homepage": "https://github.com/geoffreytools/ts-spec#readme",
   "dependencies": {
-    "free-types-core": "^0.8.0"
+    "free-types-core": "^0.8.0",
+    "ts-trace": "github:geoffreytools/ts-trace"
   },
   "devDependencies": {
     "typescript": "^4.9.5"
@@ -32,6 +33,6 @@
     "test": "tsc && tsc -p ./tsconfig-test-non-strict.json",
     "build": "tsc -p ./tsconfig-build.json",
     "watch": "tsc -p ./tsconfig-build.json --watch",
-    "trace": "tsc --generateTrace traceDir"
+    "trace": "bash ./node_modules/ts-trace/ts-trace.sh"
   }
 }
