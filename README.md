@@ -82,26 +82,30 @@ test('test description', t =>
 ```
 
 #### Array of assertions
-The recommended way to return multiple assertions is an implicit return:
+
+Implicitly returning a tuple of assertions conveniently reports failures where they occur:
 ```typescript
 test('test description', t => [
     t.pass(),
     t.fail()
-//  ~~~~~~~
+//  ~~~~~~~ pretty convenient
 ]);
 ```
-Although equivalent, explicit returns have the disadvantage that the error is reported at the callback level, which results in noisier error messages:
+
+Explicit returns enable sharing local variables, but they report failures at the callback level and print noisier error messages, unless you *`force`* type checking to happen sooner:
+
 ```typescript
 test('test description', t => {
-//                       ~~~~~~
-    return [
+    const foo = 42;
+
+    return t.force([
+    //     ---------
         t.pass(),
         t.fail()
-    ]
+    //  ~~~~~~~ still good
+    ])
 });
 ```
-
-If you need to share local variables across assertions, nested tests may be a better option.
 
 #### Assertion returning functions
 This pattern can be useful for testing type narrowing with only little boilerplate:
@@ -120,15 +124,15 @@ test('`Filter` returns useful type when input is generic', t =>
 )
 ```
 
-And of course it allows for scoping variables:
+And of course it allows to scope variables:
 ```typescript
 test('`bar` returns true', t => [
     () => {
-        const foo = 1;
+        const foo = 42;
         return t.true(bar(foo))
     },
     () => {
-        const foo = 2;
+        const foo = 2001;
         return t.true(bar(foo))
     }
 ]);
@@ -150,10 +154,10 @@ test('Given Foo', t =>
     )
 )
 ```
-Nested tests are also a good option for sharing local variables because errors are reported on each leaf independently:
+Nested tests are also a good option for sharing local variables because failures are reported by test leaves and don't bubble up:
 ```typescript
-test('Given `foo` is 1', t => {
-    const foo = 1;
+test('Given `foo` is 42', t => {
+    const foo = 42;
 
     return [
         test(t('Something is true'), t =>
@@ -162,7 +166,7 @@ test('Given `foo` is 1', t => {
 
         test(t('Something else'), t =>
             t.fail()
-        //  ~~~~~~~
+        //  ~~~~~~~ still good
         )
     ]
 });

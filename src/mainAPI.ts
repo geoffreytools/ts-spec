@@ -40,6 +40,7 @@ type BinaryTest<T extends string, $F extends $BinaryAssertion> = {
 }
 
 type Context<T extends string> = (<U extends string>(title: U) => `${T} ❱ ${U}`) & {
+    force: (a: readonly PassingTest[]) => PassingTest
     pass: () => true
     fail: () => Test<T, never, true, true, True<never>>
     equal: BinaryTest<T, $Equals<true>>,

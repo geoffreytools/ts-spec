@@ -19,11 +19,13 @@ test('failing array of assertions', t => [
     t.fail()
 ])
 
-test(
-    'failing array of assertions explicit return',
-    // @ts-expect-error: failing function :(
-    t => { return [ t.pass(), t.fail()]}
-)
+test('failing array of assertions explicit return', t => {
+    return t.force([
+        t.pass(),
+        // @ts-expect-error: failing assertion
+        t.fail()
+    ])
+})
 
 test('successful assertion returning function', t =>
     () => t.pass()
@@ -38,10 +40,11 @@ test('successful assertion array returning function', t =>
     () => [t.pass(), t.pass()]
 )
 
-test('failing assertion array returning function', t =>
-    // @ts-expect-error: failing function :(
-    () => [t.fail(), t.pass()]
-)
+test('failing assertion array returning function', t => () => t.force([
+    // @ts-expect-error: failing assertion
+    t.fail(),
+    t.pass()
+]))
         
 test('array of successful assertion returning functions', t => [
     () => t.pass(),
@@ -88,16 +91,11 @@ test('successful arbitrary stuff', t => () => [
     async () => [t.pass(), t.pass()]
 ])
 
-test('failing arbitrary stuff', t =>
-    // @ts-expect-error: failing function :(
-    () => [
-        () => [t.pass(), Promise.resolve(t.pass())],
-        async () => [t.pass(), t.fail()]
+test('failing arbitrary stuff', t => () => [
+    () => [t.pass(), Promise.resolve(t.pass())],
+    async () => t.force([
+        t.pass(),
+        // @ts-expect-error: failing assertion
+        t.fail()
     ])
-
-test('failing arbitrary stuff', t =>
-    // @ts-expect-error: failing function :(
-    () => [
-        () => [t.pass(), Promise.resolve(t.pass())],
-        async () => [t.pass(), t.fail()]
-    ])
+])
