@@ -1,6 +1,6 @@
-import { Eq } from './utils'
+import { Eq } from './utils.js'
 
-import { Disambiguate, StrictReadonly, result } from './Equality'
+import { Disambiguate, StrictReadonly, result } from './Equality.js'
 
 export type { Equal, Extends, Includes }
 

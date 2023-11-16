@@ -1,4 +1,4 @@
-import { test, _never, _unknown } from '../src'
+import { test, _never, _unknown } from '../src/index.js'
 
 test('`_never` allows `never` to extend itself', t => [
     t.includes<[1, 2, _never], [1, 2, never]>(),

@@ -1,4 +1,4 @@
-import { test, Context } from '../../src';
+import { test, Context } from '../../src/index.js';
 
 /** Title concatenation */
 

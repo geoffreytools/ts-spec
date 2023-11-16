@@ -1,4 +1,4 @@
-import { test } from '../src'
+import { test } from '../src/index.js'
 
 test('do not handle optional properties', t => [
     t.equal<{ a: number; b?: string }, { a: number }>(),

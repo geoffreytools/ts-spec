@@ -1,4 +1,4 @@
-import { test, _any } from '../src'
+import { test, _any } from '../src/index.js'
 
 test('monomorphic functions', t => [
     t.equal<(a: any) => void, (a: any) => void>(),

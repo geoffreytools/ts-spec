@@ -1,4 +1,4 @@
-import { test } from '../src'
+import { test } from '../src/index.js'
 
 test('value/type readonly key', t =>
     t.not.equal ({ a: 1 }) <{ readonly a: number }>()

@@ -3,7 +3,7 @@
         "noEmit": true,
         "noEmitOnError": true,
         "noErrorTruncation": true,
-        "moduleResolution": "node",
+        "moduleResolution": "NodeNext",
         "lib": ["ES2015"],
         "target": "ES2015",
         "strictFunctionTypes": true,

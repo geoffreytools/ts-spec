@@ -1,6 +1,6 @@
 import { apply, Type, A } from 'free-types-core';
 
-import { Eq, Fork, Extend, True, False, Any, Unknown, Never, Either } from './utils'
+import { Eq, Fork, Extend, True, False, Any, Unknown, Never, Either } from './utils.js'
 
 import {
     Disambiguate,
@@ -8,7 +8,7 @@ import {
     Failure,
     FailingTest,
     Debug,
-} from './Equality'
+} from './Equality.js'
 
 export { test, _, Context }
 

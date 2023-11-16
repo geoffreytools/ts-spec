@@ -1,4 +1,4 @@
-import {Fork, Eq, Or} from './utils'
+import {Fork, Eq, Or} from './utils.js'
 
 export type ConfigOptions = 'strictOptionalProperties' | 'TS 4.8'
 

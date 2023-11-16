@@ -1,4 +1,4 @@
-import { test, _ } from '../src'
+import { test, _ } from '../src/index.js'
 
 test('includes disambiguates B', t => [
     // @ts-expect-error: Failing test

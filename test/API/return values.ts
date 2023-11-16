@@ -1,4 +1,4 @@
-import { test } from '../../src';
+import { test } from '../../src/index.js';
 
 test('successful assertion', t =>
     t.pass()

@@ -1,4 +1,4 @@
-import { test, _ } from '../../src'
+import { test, _ } from '../../src/index.js'
 
 test('type / type', t => [
     t.equal<1, 1>(),

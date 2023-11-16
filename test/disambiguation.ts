@@ -1,4 +1,4 @@
-import { test } from '../src'
+import { test } from '../src/index.js'
 import { Type } from 'free-types-core';
 
 test('disambiguate raw type', t => [
@@ -44,7 +44,7 @@ test('disambiguate built-in class', t => [
 
 class Test<T> { constructor(private value: T) {} }
 interface $Test extends Type<1> { type: Test<this[0]> }
-declare module '../src' { interface TypesMap { Test: $Test } }
+declare module '../src/index.js' { interface TypesMap { Test: $Test } }
 
 test('disambiguate known user class', t => [
     t.not.equal<Test<number>, Test<any>>(),

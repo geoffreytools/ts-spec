@@ -1,11 +1,11 @@
 import { apply, Unwrapped, unwrap, TypesMap } from 'free-types-core';
 
-import { Fork, Any, Never, Unknown } from './utils'
-import { _any, _never, _unknown } from './placeholders'
+import { Fork, Any, Never, Unknown } from './utils.js'
+import { _any, _never, _unknown } from './placeholders.js'
 
-import * as Config from './Config'
+import * as Config from './Config.js'
 
-export {
+export type {
     Disambiguate,
     StrictReadonly,
     Failure,

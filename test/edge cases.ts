@@ -1,4 +1,4 @@
-import { test } from '../src'
+import { test } from '../src/index.js'
 
 // Comparing equality algorithms on edge cases
 // https://github.com/microsoft/TypeScript/issues/27024
