@@ -66,9 +66,9 @@ The downside of expecting errors is that they can have other reasons to occur th
 [Writing tests](#writing-tests) | [Assertions](#assertions) | [Equality](#equality)
 
 ## Writing tests
-### `test`
+### `test` | `check`
 
-The function `test` is composed of a test description and a callback.
+The function `test` (also aliased as `check`) is composed of a test description and a callback.
 
 The callback can return one or multiple assertions, which can be wrapped in arbitrary ways in tuples, promises, functions or nested tests, enabling all kinds of patterns and test hierarchies.
 
@@ -192,6 +192,30 @@ group('Given `foo` is 42', g => {
     )
 });
 ```
+
+### `wrap`
+
+When you need a `describe` block from your testing library to contain both a runtime test and a type-level check, and pass down the test title to the type-level check, you can use `wrap` to turn the `describe` function into a `group` while maintaining the runtime behaviour.
+
+```typescript
+import { describe, test } from 'vitest';
+import { wrap, check } from 'ts-spec';
+
+wrap(describe)('given a user service', w => {
+    const service = { createUser: <T extends string>(name: T) => ({ id: 1 as const, name }) };
+
+    test('creates user correctly', ({ expect }) => {
+        expect(service.createUser('Alice')).toEqual({ id: 1, name: 'Alice' });
+    });
+    
+    check(w('user has correct type'), t =>
+        t.equal(service.createUser('Alice'))<{ id: 1, name: 'Alice' }>(),
+    )
+});
+```
+As you may have noticed, the original testing library context is no-longer accessible.
+
+This is useful in vitest when setting `requireAssertions` to `true`, as vitest `expectTypeOf` does not count as an assertion.
 
 ## Assertions 
 

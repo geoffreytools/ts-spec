@@ -27,10 +27,12 @@
     "ts-trace": "github:geoffreytools/ts-trace"
   },
   "devDependencies": {
-    "typescript": "^4.9.5"
+    "@types/node": "^24.3.0",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
   },
   "scripts": {
-    "test": "tsc && tsc -p ./tsconfig-test-non-strict.json",
+    "test": "tsc && tsc -p ./tsconfig-test-non-strict.json && vitest .spec.ts --run",
     "build": "tsc -p ./tsconfig-build.json",
     "watch": "tsc -p ./tsconfig-build.json --watch",
     "trace": "bash ./node_modules/ts-trace/ts-trace.sh"

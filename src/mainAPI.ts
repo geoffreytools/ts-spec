@@ -10,7 +10,7 @@ import {
     Debug,
 } from './Equality.js'
 
-export { test, group, _, Context }
+export { test, test as check, group, _, Context }
 
 const test = <
     T extends string & CheckTitle,
@@ -20,11 +20,22 @@ const test = <
 > (title: T, callback: (t: C) => R ) =>
     null as any as R;
 
-const group = <
+const groupAs = <DescribeFn extends (title: string, callback: () => void) => any>(
+    describeFn: DescribeFn
+) => <
     T extends string & CheckTitle,
     CheckTitle = Title<T>,
-> (title: T, callback: (t: TitleAccumulator<T>) => undefined ) =>
-    null as any as PassingTest;
+>(title: T, callback: (t: TitleAccumulator<T>) => void) => describeFn(title, () => {
+    callback((nested => `${title} ❱ ${nested}`));
+});
+
+const group = Object.assign(
+    <T extends string & CheckTitle, CheckTitle = Title<T>> (
+        title: T,
+        callback: (t: TitleAccumulator<T>) => void
+    ) => null as any as PassingTest,
+    { as: groupAs }
+);
 
 const _ = null as unknown;
 

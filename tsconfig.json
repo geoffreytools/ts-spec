@@ -1,8 +1,4 @@
 {
-    "compilerOptions": {
-        "module": "NodeNext",
-        "moduleResolution": "NodeNext",
-    },
     "extends": "./tsconfig-base.json",
     "include": ["./src/**/*", "./test/**/*.ts"],
 }
