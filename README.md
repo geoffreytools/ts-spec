@@ -172,6 +172,27 @@ test('Given `foo` is 42', t => {
 });
 ```
 
+### `group`
+
+Like `test`, `group` enables accumulating context but it does not enable writing assertions and its callback should be `void`.
+
+Groups eliminate some boilerplate and keep the indentation level under control:
+
+```typescript
+group('Given `foo` is 42', g => {
+    const foo = 42;
+    
+    test(g('Something is true'), t =>
+        t.true(bar(foo))
+    )
+
+    test(g('Something else'), t =>
+        t.fail()
+    //  ~~~~~~~~
+    )
+});
+```
+
 ## Assertions 
 
 The library supports the following assertions

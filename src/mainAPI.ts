@@ -10,7 +10,7 @@ import {
     Debug,
 } from './Equality.js'
 
-export { test, _, Context }
+export { test, group, _, Context }
 
 const test = <
     T extends string & CheckTitle,
@@ -19,6 +19,12 @@ const test = <
     CheckTitle = Title<T>,
 > (title: T, callback: (t: C) => R ) =>
     null as any as R;
+
+const group = <
+    T extends string & CheckTitle,
+    CheckTitle = Title<T>,
+> (title: T, callback: (t: TitleAccumulator<T>) => undefined ) =>
+    null as any as PassingTest;
 
 const _ = null as unknown;
 
@@ -39,7 +45,9 @@ type BinaryTest<T extends string, $F extends $BinaryAssertion> = {
     <A, B>(..._: [] | [A, B]): apply<$F, [T, A, B]>
 }
 
-type Context<T extends string> = (<U extends string>(title: U) => `${T} ❱ ${U}`) & {
+type TitleAccumulator<T extends string> = <U extends string>(title: U) => `${T} ❱ ${U}`;
+
+type Context<T extends string> = TitleAccumulator<T> & {
     force: (a: readonly PassingTest[]) => PassingTest
     pass: () => true
     fail: () => Test<T, never, true, true, True<never>>
