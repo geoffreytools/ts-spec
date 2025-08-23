@@ -12,21 +12,64 @@ import {
 
 export { test, test as check, group, _, Context }
 
-const test = <
+const unary = () => {};
+const binary = () => () => {}
+type FrameworkFn = (title: string, callback: () => void) => any
+
+const testAs = <Fn extends FrameworkFn, G extends TitleAccumulator<any> = never>(
+    testFn: Fn,
+    titleAccumulator?: G
+) => <
     T extends string & CheckTitle,
     R extends PassingTest,
-    C = Context<T>,
+    C = [G] extends [never] ? Context<T> : Context<G extends TitleAccumulator<infer Base> ? `${Base} ❱ ${T}` : T>,
     CheckTitle = Title<T>,
-> (title: T, callback: (t: C) => R ) =>
-    null as any as R;
+>(title: T, callback: (t: C) => R ) => testFn(title, () => callback(
+    Object.assign((a => a) as TitleAccumulator<T>, {
+        force: unary,
+        pass: unary,
+        fail: unary,
+        equal: binary,
+        extends: binary,
+        includes: binary,
+        any: unary,
+        unknown: unary,
+        never: unary,
+        true: unary,
+        false: unary,
+        not: {
+            equal: binary,
+            extends: binary,
+            includes: binary,
+            any: unary,
+            unknown: unary,
+            never: unary,
+            true: unary,
+            false: unary
+        }
+    }) as C)
+);
 
-const groupAs = <DescribeFn extends (title: string, callback: () => void) => any>(
-    describeFn: DescribeFn
+const test = Object.assign(
+    <
+        T extends string & CheckTitle,
+        R extends PassingTest,
+        C = Context<T>,
+        CheckTitle = Title<T>,
+    > (title: T, callback: (t: C) => R ) => null as any as R,
+    { as: testAs }
+);
+
+const groupAs = <Fn extends FrameworkFn, G extends TitleAccumulator<any> = never>(
+    describeFn: Fn,
+    titleAccumulator?: G
 ) => <
     T extends string & CheckTitle,
     CheckTitle = Title<T>,
->(title: T, callback: (t: TitleAccumulator<T>) => void) => describeFn(title, () => {
-    callback((nested => `${title} ❱ ${nested}`));
+    Acc extends string = [G] extends [never] ? T : G extends TitleAccumulator<infer Base> ? `${Base} ❱ ${T}` : T
+>(title: T, callback: (t: TitleAccumulator<Acc>) => void
+) => describeFn(title, () => {
+    callback((a => a) as TitleAccumulator<Acc>);
 });
 
 const group = Object.assign(

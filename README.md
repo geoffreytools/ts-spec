@@ -193,27 +193,68 @@ group('Given `foo` is 42', g => {
 });
 ```
 
-### `wrap`
+### `.as`
 
-When you need a `describe` block from your testing library to contain both a runtime test and a type-level check, and pass down the test title to the type-level check, you can use `wrap` to turn the `describe` function into a `group` while maintaining the runtime behaviour.
+When you need a describe block or a test from your runtime testing library of choice to contain both a runtime test and a ts-spec check and have the test title wired correctly, you can wrap it:
 
 ```typescript
-import { describe, test } from 'vitest';
-import { wrap, check } from 'ts-spec';
+import { expect, describe, test } from 'vitest';
+import { group, check } from 'ts-spec';
 
-wrap(describe)('given a user service', w => {
-    const service = { createUser: <T extends string>(name: T) => ({ id: 1 as const, name }) };
+group.as(describe)('given a user service', g => {
+    const service = { createUser: (name: string) => ({ id: 1, name }) };
 
-    test('creates user correctly', ({ expect }) => {
+    test('creates user correctly', () => {
         expect(service.createUser('Alice')).toEqual({ id: 1, name: 'Alice' });
     });
     
-    check(w('user has correct type'), t =>
-        t.equal(service.createUser('Alice'))<{ id: 1, name: 'Alice' }>(),
+    check(g('user has correct type'), t =>
+        t.equal(service.createUser('Alice'))<{ id: number, name: string }>(),
     )
 });
+
+// or
+group.as(describe)('given a user service', g => {
+    const service = { createUser: (name: string) => ({ id: 1, name }) };
+
+    check.as(test)(g('creates user correctly'), t => {
+        const user = service.createUser('Alice');
+
+        expect(user).toEqual({ id: 1, name: 'Alice' });
+        return t.equal(user)<{ id: number, name: string }>();
+    });
+});
 ```
-As you may have noticed, the original testing library context is no-longer accessible.
+
+Note that the accumulated title can also be passed as a second argument to `.as`, for convenience:
+```typescript 
+group.as(describe)('given a user service', g => {
+    check.as(test, g)('creates user correctly', t => {
+        [...]
+    });
+});
+```
+
+### `test.with` | `check.with`
+
+Instruments `test.as` | `check.as` context methods to yield a runtime assertion when used, enabling the use of type-level checks which count as passing tests in the test report, with `requireAssertions` enabled.
+
+```typescript
+import { expect, describe, test } from 'vitest';
+import { group, check } from 'ts-spec';
+
+check.with(() => expect(true).toBe(true));
+
+group.as(describe)('given a user service', g => {
+    const service = { createUser: (name: string) => ({ id: 1, name }) };
+
+    check.as(test, g)('user has correct type', t => {
+        // will NOT produce the error `expected any number of assertion, but got none`
+        return t.equal(service.createUser('Alice'))<{ id: number, name: string }>();
+    });
+});
+```
+What it does is replace the original testing library context with the ts-spec context. 
 
 This is useful in vitest when setting `requireAssertions` to `true`, as vitest `expectTypeOf` does not count as an assertion.
 
