@@ -1,4 +1,4 @@
-export { Fork, Eq, Or, Any, Never, Unknown, Extend, True, False , Either};
+export { Fork, OrElse, Eq, Or, Any, Never, Unknown, Extend, True, False , Either};
 
 type Valid<T> = Not<Or<AnyOrUnknown<T>, Never<T>>>;
 type AnyOrUnknown<T> = Eq<T, unknown>;
@@ -11,6 +11,7 @@ type Either<A, B> = A extends false ? B : A;
 type And<A, B> = Fork<A, Fork<B, B, false>, false>;
 type Or<A, B> = Fork<A, A, Fork<B, B, false>>;
 type Fork<P, T, F> = P extends false ? F : T;
+type OrElse<T, F> = T extends false ? F : T;
 type Not<T> = Extend<T, false>;
 
 declare const thing: unique symbol;

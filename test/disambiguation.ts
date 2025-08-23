@@ -17,17 +17,27 @@ test('disambiguate built-in basic types', t => [
     t.not.equal<number[], any[]>(),
     t.not.equal<[number], [any]>(),
     t.not.equal<[number, ...number[]], [number, ...any[]]>(),
+    t.not.equal<readonly [number, ...number[]], [number, ...number[]]>(),
     t.not.equal<{ foo: number }, { foo: any }>(),
     t.not.equal<{ foo: number }[], { foo: any }[]>(),
     t.not.equal<[{ foo: number }], [{ foo: any }]>(),
-    t.extends<[number],  readonly [any]>(),
-    t.extends<number[],  readonly any[]>(),
-    t.includes<readonly [any],  [number]>(),
+    t.extends<[number], readonly [any]>(),
+    t.extends<number[], readonly any[]>(),
+    t.includes<readonly [any], [number]>(),
     t.includes<readonly any[], number[]>(),
-    t.not.includes<[any],  readonly [number]>(),
-    t.not.includes<any[],  readonly number[]>(),
+    t.not.includes<[any], readonly [number]>(),
+    t.not.includes<any[], readonly number[]>(),
     t.not.extends<readonly [number],  [any]>(),
     t.not.extends<readonly number[], any[]>(),
+])
+
+test('disambiguate open tuples', t => [
+    t.not.equal<[number, ...any[]], [number, ...number[]]>(),
+    t.not.equal<[number, ...any[]], [number, number, ...number[]]>(),
+    t.not.equal<[number, string, ...any[]], [number, string, ...number[]]>(),
+    t.not.equal<[...any[], number], [...number[], number]>(),
+    t.not.equal<[...any[], number], [...number[], number, number]>(),
+    t.not.equal<[...any[], number, string ], [...number[], number, string]>(),
 ])
 
 test('disambiguate tuples with optional members', t => [
@@ -60,3 +70,7 @@ test('disambiguation preserves true equality', t => [
 test('`any` spreads to an array', t => 
     t.equal<[...any], [...any[]]>()
 )
+
+test('disambiguate brand', t => [
+    t.not.equal<number & { _tag: 'dollar' }, number & { _tag: any }>()
+])

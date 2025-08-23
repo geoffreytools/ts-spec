@@ -1,4 +1,4 @@
-import { apply, Unwrapped, unwrap, TypesMap } from 'free-types-core';
+import { apply, Unwrapped, unwrap, TypesMap, Next } from 'free-types-core';
 
 import { Fork, Any, Never, Unknown } from './utils.js'
 import { _any, _never, _unknown } from './placeholders.js'
@@ -32,18 +32,41 @@ type _Disambiguate<T, Model> =
     : Never<T> extends true ? _never
     : IsIntrinsic<T> extends true ? T
     : Unknown<T> extends true ? _unknown
+    : T extends number | string | boolean | bigint ? DisambiguateBranded<T>
     : {} extends SafeRequired<T> ? {} extends Model ? DisambiguateObject<{}, Model> : {}
     : T extends readonly unknown[]
-    ? any[] extends T
-        ? Disambiguate<T[0], 0 extends keyof Model ? Model[0] : never> extends
-            infer R ? T extends unknown[] ? R[] : readonly R[]
-            : never
-        : DisambiguateTuple<T, Model>
+    ? DisambiguateArray<T, Model>
     : T extends Obj ? DisambiguateObject<T, Model>
-    : T extends number | string | boolean | bigint ? DisambiguateBranded<T>
     : DisambiguateOther<T, Model>
 
-type DisambiguateTuple<T, Model> = {
+
+type DisambiguateArray<T extends readonly unknown[], Model> = T extends any ?
+    any[] extends T
+    ? Disambiguate<T[0], 0 extends keyof Model ? Model[0] : never> extends
+        infer R ? T extends unknown[] ? R[] : readonly R[]
+        : never
+    : DisambiguateTuple<T, Model>
+    : never;
+
+type DisambiguateTuple<T extends readonly unknown[], Model> =
+    number extends T['length'] ? (
+        T extends readonly [any, ...any[]]
+        ? PreserveReadonly<T, DisambiguateOpenEndedTuple<T, Model>>
+        : PreserveReadonly<T, DisambiguateOpenStartedTuple<T, Model>>
+    ) : DisambiguateClosedTuple<T, Model>;
+
+type DisambiguateOpenEndedTuple<T, Model, I extends number = 0> = T extends [infer Head, ...infer Tail]
+    ? [_Disambiguate<Head, Model[I & keyof Model]>, ...DisambiguateOpenEndedTuple<Tail, Model, Next<I>>]
+    : _Disambiguate<T[number & keyof T], Model[I & keyof Model]>[];
+
+type DisambiguateOpenStartedTuple<T, Model> =
+    [T, Model] extends [[...infer Init, infer Last], [...infer InitM, infer LastM]]
+    ? [...DisambiguateOpenStartedTuple<Init, InitM>, _Disambiguate<Last, LastM>]
+    : _Disambiguate<T[number & keyof T], Model>[];
+
+type PreserveReadonly<In, Out> = In extends unknown[] ? Out : Readonly<Out>
+
+type DisambiguateClosedTuple<T, Model> = {
     [K in keyof T]: K extends keyof [] ? T[K] : Disambiguate<T[K], K extends keyof Model ? Model[K] : never>
 };
 
@@ -53,7 +76,8 @@ type DisambiguateObject<T, Model> =
         & Fork<Never<Model>, {}, OptionalProps<Model>>
 
 type StrictReadonly<T> =
-    T extends readonly unknown[] ? T
+    T extends _any | _unknown | _never ? T
+    : T extends readonly unknown[] ? T
     : T extends Constructor | Fn ? T
     : T extends Obj | Interface ? T & { readonlyKeys: inferReadonlyKeys<T> }
     : T;

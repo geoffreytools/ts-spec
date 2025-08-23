@@ -8,6 +8,12 @@ test('type/type readonly key', t =>
     t.not.equal<{ a: number }, { readonly a: number }>()
 )
 
+test('readonly key in tuple', t => [
+    t.not.equal<[{ a: number }], [{ readonly a: number }]>(),
+    t.not.equal<[1, ...{ a: number }[]], [1, ...{ readonly a: number }[]]>(),
+    t.not.equal<[...1[], { a: number }], [...1[], { readonly a: number }]>(),
+])
+
 test('optional readonly key', t =>
     t.not.equal<{ a?: number }, { readonly a?: number}>()
 )

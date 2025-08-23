@@ -9,3 +9,7 @@ test('`_unknown` allows `unknown` to extend itself', t => [
     t.extends<unknown, _unknown>(),
     t.includes<_unknown, unknown>()
 ])
+
+test('_never includes never', t =>
+    t.includes<_never, never>()    
+)
