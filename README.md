@@ -195,8 +195,9 @@ group('Given `foo` is 42', g => {
 
 ### `.as`
 
-When you need a describe block or a test from your runtime testing library of choice to contain both a runtime test and a ts-spec check and have the test title wired correctly, you can wrap it:
+`.as` enables to wrap a describe block or a test from your runtime testing framework of choice and have access to the ts-spec context in place of the runtime context. This gives flexibility in how you structure unit tests.
 
+Here we are doing a runtime test and a type-level check separately:
 ```typescript
 import { expect, describe, test } from 'vitest';
 import { group, check } from 'ts-spec';
@@ -204,16 +205,21 @@ import { group, check } from 'ts-spec';
 group.as(describe)('given a user service', g => {
     const service = { createUser: (name: string) => ({ id: 1, name }) };
 
+    // runtime test
     test('creates user correctly', () => {
         expect(service.createUser('Alice')).toEqual({ id: 1, name: 'Alice' });
     });
-    
+
+    // type-level test, ignored by vitest
     check(g('user has correct type'), t =>
         t.equal(service.createUser('Alice'))<{ id: number, name: string }>(),
     )
 });
+```
+This is useful in vitest when setting `requireAssertions` to `true`, as vitest `expectTypeOf` in a vitest `test` would would yield an error.
 
-// or
+Here we are mixing runtime and type-level checks in the same test, without having to mix and match ts-spec assertions with vitest `expectTypeOf`, which would be inconsistent:
+```typescript 
 group.as(describe)('given a user service', g => {
     const service = { createUser: (name: string) => ({ id: 1, name }) };
 
@@ -254,9 +260,6 @@ group.as(describe)('given a user service', g => {
     });
 });
 ```
-What it does is replace the original testing library context with the ts-spec context. 
-
-This is useful in vitest when setting `requireAssertions` to `true`, as vitest `expectTypeOf` does not count as an assertion.
 
 ## Assertions 
 

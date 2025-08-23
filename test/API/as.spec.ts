@@ -1,33 +1,27 @@
 import { check, group, Context } from '../../src/index.js';
 import { test, describe, expect } from 'vitest';
 
-group.as(describe)('given a user service', g => {
-    const service = { createUser: <T extends string>(name: T) => ({ id: 1 as const, name }) };
+check.with(() => expect(true).toBe(true));
 
-    test('creates user correctly', () => {
-        expect(service.createUser('Alice')).toEqual({ id: 1, name: 'Alice' });
+group.as(describe)('shared description', g => {
+    const alice = { id: 1, name: 'Alice' as const };
+
+    check(g('type-level check'), t => [
+        t.equal(alice)<{ id: number, name: 'Alice' }>(),
+        t.equal(t)<Context<'shared description ❱ type-level check'>>()
+    ])
+
+    test('runtime check', () => {
+        expect(alice).toEqual({ id: 1, name: 'Alice' });
     });
     
-    check(g('user has correct type'), t => [
-        t.equal(service.createUser('Alice'))<{ id: 1, name: 'Alice' }>(),
-        t.equal(t)<Context<'given a user service ❱ user has correct type'>>()
-    ])
-});
-
-describe('check.as() functionality', () => {
-    check.as(test)('should work with vitest test function', t => {
-        expect(true).toBe(true);
-
-        return t.equal<number, number>();
+    check.as(test)(g('type-level check reported as runtime check'), t => {
+        return t.equal(alice)<{ id: number, name: 'Alice' }>();
     });
-});
 
-group.as(describe)('given a user service', g => {
-    const service = { createUser: (name: string) => ({ id: 1, name }) };
-
-    check.as(test)(g('creates user correctly'), t => {
-        expect(service.createUser('Alice')).toEqual({ id: 1, name: 'Alice' });
-        return t.equal(service.createUser('Alice'))<{ id: number, name: string }>();
+    check.as(test)(g('mixed runtime and type-level check'), t => {
+        expect(alice).toEqual({ id: 1, name: 'Alice' });
+        return t.equal(alice)<{ id: number, name: 'Alice' }>();
     });
 
     check.as(test, g)('hoised title accumulator', t => 

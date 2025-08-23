@@ -12,8 +12,33 @@ import {
 
 export { test, test as check, group, _, Context }
 
-const unary = () => {};
-const binary = () => () => {}
+const runtime = { current: () => {} };
+const fn = () => { runtime.current(); return () => {}; };
+
+const testContext = {
+    force: fn,
+    pass: fn,
+    fail: fn,
+    equal: fn,
+    extends: fn,
+    includes: fn,
+    any: fn,
+    unknown: fn,
+    never: fn,
+    true: fn,
+    false: fn,
+    not: {
+        equal: fn,
+        extends: fn,
+        includes: fn,
+        any: fn,
+        unknown: fn,
+        never: fn,
+        true: fn,
+        false: fn
+    }
+};
+
 type FrameworkFn = (title: string, callback: () => void) => any
 
 const testAs = <Fn extends FrameworkFn, G extends TitleAccumulator<any> = never>(
@@ -25,30 +50,10 @@ const testAs = <Fn extends FrameworkFn, G extends TitleAccumulator<any> = never>
     C = [G] extends [never] ? Context<T> : Context<G extends TitleAccumulator<infer Base> ? `${Base} ❱ ${T}` : T>,
     CheckTitle = Title<T>,
 >(title: T, callback: (t: C) => R ) => testFn(title, () => callback(
-    Object.assign((a => a) as TitleAccumulator<T>, {
-        force: unary,
-        pass: unary,
-        fail: unary,
-        equal: binary,
-        extends: binary,
-        includes: binary,
-        any: unary,
-        unknown: unary,
-        never: unary,
-        true: unary,
-        false: unary,
-        not: {
-            equal: binary,
-            extends: binary,
-            includes: binary,
-            any: unary,
-            unknown: unary,
-            never: unary,
-            true: unary,
-            false: unary
-        }
-    }) as C)
+    Object.assign((a => a) as TitleAccumulator<T>, testContext) as C)
 );
+
+const testWith = (success: () => void) => { runtime.current = success; };
 
 const test = Object.assign(
     <
@@ -57,7 +62,7 @@ const test = Object.assign(
         C = Context<T>,
         CheckTitle = Title<T>,
     > (title: T, callback: (t: C) => R ) => null as any as R,
-    { as: testAs }
+    { as: testAs, with: testWith }
 );
 
 const groupAs = <Fn extends FrameworkFn, G extends TitleAccumulator<any> = never>(
