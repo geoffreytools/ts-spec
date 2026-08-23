@@ -23,12 +23,12 @@
   },
   "homepage": "https://github.com/geoffreytools/ts-spec#readme",
   "dependencies": {
-    "free-types-core": "^0.8.0",
+    "free-types-core": "^1.1.0",
     "ts-trace": "github:geoffreytools/ts-trace"
   },
   "devDependencies": {
     "@types/node": "^24.3.0",
-    "typescript": "^5.9.2",
+    "typescript": "^7.0.2",
     "vitest": "^3.2.4"
   },
   "scripts": {
